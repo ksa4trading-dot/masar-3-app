@@ -528,16 +528,47 @@ const DEMO={
   ]},
 };
 
-// ── callScript ─────────────────────────────────────────────────────
-function callScript(action,payload={}){
-  return new Promise(resolve=>{
-    try{
-      google.script.run
-        .withSuccessHandler(r=>resolve(typeof r==="string"?JSON.parse(r):r))
-        .withFailureHandler(()=>resolve(DEMO[action]||{success:false,data:[]}))
-        .handleAction(action,JSON.stringify(payload));
-    }catch(e){resolve(DEMO[action]||{success:false,data:[]});}
-  });
+// ═══════════════════════════════════════════════════════════════════════
+// 14) doPost — HTTP entry point (محدثة لدعم CORS والاتصال الخارجي)
+// ═══════════════════════════════════════════════════════════════════════
+function doPost(e) {
+  // 1. إعدادات الـ CORS للسماح بالاتصال من GitHub
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  output.addHeader("Access-Control-Allow-Origin", "*");
+  output.addHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  output.addHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // 2. معالجة طلبات OPTIONS (طلب التحقق من المتصفح قبل إرسال البيانات)
+  if (e.postData.type === "application/json" && !e.postData.contents) {
+    return output;
+  }
+
+  try {
+    let action, p;
+    const ct = (e.postData.type || "").toLowerCase();
+    
+    if (ct.includes("application/json")) {
+      const req = JSON.parse(e.postData.contents);
+      action = req.action;
+      p = req.payload || {};
+    } else {
+      action = e.parameter.action || "";
+      try { p = JSON.parse(e.parameter.payload || "{}"); } catch(ex) { p = {}; }
+    }
+
+    // تنفيذ العملية الأساسية
+    const result = handleAction(action, JSON.stringify(p));
+
+    // إرجاع النتيجة مع إضافة ترويسة السماح بالوصول
+    output.setContent(JSON.stringify(result));
+    return output;
+
+  } catch (err) {
+    // إرجاع خطأ في حال فشل المعالجة
+    output.setContent(JSON.stringify({ success: false, error: err.message }));
+    return output;
+  }
 }
 
 // ── المتغيرات ───────────────────────────────────────────────────────
