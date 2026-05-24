@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>مشير — لوحة القيادة</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+
+<style>
+:root{
+  --bg:#f0f3f7;--bg2:#ffffff;--bg3:#f7f9fb;--bg4:#eef1f5;
+  --border:#dde3ec;--border2:#c8d0dc;
+  --green:#0F6E56;--green2:#e6f4f0;--green3:#b2ddd3;
+  --blue:#1a5fa8;--blue2:#e8f0fb;--blue3:#b3cef0;
+  --amber:#c47d0a;--amber2:#fef4e3;--amber3:#f8d89a;
+  --red:#c0392b;--red2:#fdecea;--red3:#f5b7b1;
+  --purple:#6c3fc9;--purple2:#f0ebfc;
+  --text:#1a2233;--text2:#4a5568;--text3:#8a97a8;
+  --font:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --mono:'Consolas','Courier New',monospace;
+  --r:8px;--r2:12px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.03);
+  --sh2:0 4px 16px rgba(0,0,0,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* LOADING */
+#loader{position:fixed;inset:0;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity .4s;}
+#loader.hide{opacity:0;pointer-events:none;}
+.loader-ico{width:52px;height:52px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;font-weight:700;}
+.loader-txt{margin-top:12px;font-size:12px;color:var(--text3);}
+
+/* HEADER */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+.brand{display:flex;align-items:center;gap:10px;}
+.bico{width:34px;height:34px;border-radius:9px;background:var(--green);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;}
+.bname{font-size:14px;font-weight:600;color:var(--text);}
+.bsub{font-size:10px;color:var(--text3);margin-top:1px;}
+.phase-pill{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;background:var(--green2);border:1px solid var(--green3);font-size:11px;color:var(--green);font-weight:500;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pu 2s infinite;}
+@keyframes pu{0%,100%{opacity:1;}50%{opacity:.3;}}
+.countdown{font-family:var(--mono);font-size:13px;color:var(--amber);font-weight:600;letter-spacing:1px;}
+.clock-wrap{text-align:left;font-size:11px;color:var(--text3);line-height:1.5;font-family:var(--mono);}
+.btn-pdf{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);background:var(--blue2);border:1px solid var(--blue3);color:var(--blue);font-size:11px;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.btn-pdf:hover{background:var(--blue3);}
+
+/* TIMELINE */
+.tl-wrap{background:var(--bg2);border-bottom:1px solid var(--border);padding:7px 20px;}
+.tl-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:5px;font-family:var(--mono);}
+.tl-track{height:5px;background:var(--bg4);border-radius:3px;overflow:visible;position:relative;}
+.tl-fill{height:5px;border-radius:3px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width 1s;}
+.tl-marker{position:absolute;top:-4px;width:12px;height:12px;border-radius:50%;background:var(--amber);border:2px solid #fff;box-shadow:0 0 0 1px var(--amber);transform:translateX(50%);}
+
+/* NAV */
+.nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:0;overflow-x:auto;}
+.ntab{display:flex;align-items:center;gap:6px;padding:10px 14px;border:none;background:transparent;font-size:12px;font-family:var(--font);color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .2s;}
+.ntab:hover{color:var(--text2);}
+.ntab.on{color:var(--green);border-bottom-color:var(--green);font-weight:600;}
+.ntab .badge{background:var(--red);color:#fff;font-size:9px;padding:1px 5px;border-radius:10px;margin-right:2px;}
+
+/* CONTENT */
+.content{padding:16px 20px;max-width:1400px;margin:0 auto;}
+.page{display:none;}.page.on{display:block;}
+
+/* KPI CARDS */
+.krow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;}
+.kc{background:var(--bg2);border-radius:var(--r2);padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden;cursor:pointer;transition:all .2s;border-right:3px solid transparent;}
+.kc:hover{box-shadow:var(--sh2);transform:translateY(-1px);}
+.kc-g{border-right-color:var(--green);}
+.kc-b{border-right-color:var(--blue);}
+.kc-a{border-right-color:var(--amber);}
+.kc-r{border-right-color:var(--red);}
+.kc-p{border-right-color:var(--purple);}
+.k-ico{position:absolute;top:12px;left:12px;font-size:20px;opacity:.07;}
+.k-lbl{font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:.3px;}
+.k-val{font-size:26px;font-weight:700;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;}
+.k-sub{font-size:10px;color:var(--text3);margin-top:4px;}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;}
+.g32{display:grid;grid-template-columns:3fr 2fr;gap:12px;margin-bottom:12px;}
+.g23{display:grid;grid-template-columns:2fr 3fr;gap:12px;margin-bottom:12px;}
+.gcol{display:flex;flex-direction:column;gap:12px;}
+
+/* CARD */
+.card{background:var(--bg2);border-radius:var(--r2);padding:14px;box-shadow:var(--sh);}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.ct{font-size:12px;font-weight:600;color:var(--text);}
+.cs{font-size:10px;color:var(--text3);}
+
+/* TAGS */
+.tag{font-size:9px;padding:3px 8px;border-radius:20px;font-weight:500;}
+.tg{background:var(--green2);color:var(--green);}
+.tw{background:var(--amber2);color:var(--amber);}
+.tr{background:var(--red2);color:var(--red);}
+.tb{background:var(--blue2);color:var(--blue);}
+.tn{background:var(--bg4);color:var(--text3);}
+.tp{background:var(--purple2);color:var(--purple);}
+
+/* PROGRESS */
+.pr{margin-bottom:8px;}
+.pl{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:3px;}
+.pb{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.pf{height:5px;border-radius:3px;transition:width .8s;}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{padding:7px 10px;text-align:right;color:var(--text3);font-weight:600;font-size:10px;letter-spacing:.4px;background:var(--bg3);border-bottom:1px solid var(--border);}
+.tbl td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text2);}
+.tbl tr:last-child td{border:none;}
+.tbl tr:hover td{background:var(--bg3);}
+
+/* ROAD ITEM */
+.ri{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r);margin-bottom:5px;border:1px solid transparent;}
+.ri-g{background:var(--green2);border-color:var(--green3);}
+.ri-a{background:var(--amber2);border-color:var(--amber3);}
+.ri-r{background:var(--red2);border-color:var(--red3);}
+.ri-n{background:var(--bg3);border-color:var(--border);}
+.rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.rname{font-size:11px;font-weight:600;flex:1;}
+.rnums{display:flex;gap:10px;}
+.rnum{display:flex;flex-direction:column;align-items:center;gap:1px;}
+.rnum b{font-size:13px;font-weight:700;line-height:1;}
+.rnum span{font-size:9px;color:var(--text3);}
+
+/* HEATMAP */
+.hm-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-bottom:4px;}
+.hm-cell{height:24px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:rgba(255,255,255,.9);font-family:var(--mono);}
+.hm-labels{display:grid;grid-template-columns:repeat(12,1fr);gap:2px;}
+.hm-lbl{text-align:center;font-size:9px;color:var(--text3);}
+
+/* GUIDE ROW */
+.gr{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);}
+.gr:last-child{border:none;}
+.gav{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+.gn{font-size:11px;font-weight:500;color:var(--text);}
+.gc{font-size:9px;color:var(--text3);margin-top:1px;}
+.ph-btn{display:flex;align-items:center;gap:3px;padding:3px 7px;border-radius:5px;background:var(--blue2);border:1px solid var(--blue3);color:var(--blue);font-size:9px;cursor:pointer;font-family:var(--font);white-space:nowrap;}
+
+/* ALERT ITEM */
+.ai{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:var(--r);margin-bottom:6px;cursor:pointer;}
+.ai-r{background:var(--red2);border:1px solid var(--red3);}
+.ai-w{background:var(--amber2);border:1px solid var(--amber3);}
+.ai-b{background:var(--blue2);border:1px solid var(--blue3);}
+.ai-t{font-size:11px;font-weight:500;}
+.ai-s{font-size:9px;color:var(--text3);margin-top:2px;}
+
+/* DRILL */
+.drill{display:none;margin-top:10px;padding:12px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);}
+.drill.on{display:block;}
+
+/* CBOX */
+.cbox{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;box-shadow:var(--sh);}
+
+/* SEASON KPI */
+.sk{background:var(--bg2);border-radius:var(--r);padding:12px;text-align:center;box-shadow:var(--sh);}
+.sk-v{font-size:22px;font-weight:700;color:var(--text);}
+.sk-l{font-size:9px;color:var(--text3);margin-top:3px;}
+
+/* FOOTER */
+.foot{display:flex;justify-content:space-between;padding:8px 20px;font-size:10px;color:var(--text3);background:var(--bg2);border-top:1px solid var(--border);}
+.sep{height:1px;background:var(--border);margin:8px 0;}
+.mr{display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);}
+.mr:last-child{border:none;}
+
+/* CENTER CARD expand */
+.cbox:hover{border-color:var(--border2);}
+/* OEE */
+.oee-sub{display:flex;gap:6px;margin-top:8px;}
+.oee-item{flex:1;text-align:center;padding:6px 4px;background:var(--bg3);border-radius:var(--r);border:1px solid var(--border);}
+.oee-v{font-size:14px;font-weight:700;}
+.oee-l{font-size:9px;color:var(--text3);margin-top:1px;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+</head>
+<body>
+
+<div id="loader">
+  <div class="loader-ico">م</div>
+  <div class="loader-txt">جاري التحميل...</div>
+</div>
+
+<div class="hdr">
+  <div class="brand">
+    <div class="bico">م</div>
+    <div><div class="bname">مشير — لوحة القيادة التنفيذية</div><div class="bsub">نظام إدارة نقل حجاج بيت الله الحرام · موسم 1447</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="phase-pill"><div class="pulse"></div><span id="phase-name">...</span></div>
+    <div class="countdown" id="countdown">--:--:--</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div class="clock-wrap" id="clock">--:--</div>
+    <button class="btn-pdf" onclick="exportPDF()"><i class="ti ti-file-type-pdf" aria-hidden="true"></i>PDF</button>
+  </div>
+</div>
+
+<div class="tl-wrap">
+  <div class="tl-labels">
+    <span id="tl-s">بداية المرحلة</span>
+    <span id="tl-pct" style="color:var(--green);font-weight:600;">0%</span>
+    <span id="tl-e">نهاية المرحلة</span>
+  </div>
+  <div class="tl-track">
+    <div class="tl-fill" id="tl-fill" style="width:0%"></div>
+    <div class="tl-marker" id="tl-mark" style="right:100%"></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="ntab on" onclick="pg(0,this)"><i class="ti ti-layout-dashboard" style="font-size:12px;" aria-hidden="true"></i>الملخص التنفيذي</button>
+  <button class="ntab" onclick="pg(1,this)"><i class="ti ti-bus" style="font-size:12px;" aria-hidden="true"></i>عمليات النقل</button>
+  <button class="ntab" onclick="pg(2,this)"><i class="ti ti-road" style="font-size:12px;" aria-hidden="true"></i>ذكاء الطريق</button>
+  <button class="ntab" onclick="pg(3,this)"><i class="ti ti-building" style="font-size:12px;" aria-hidden="true"></i>مراكز الخدمة</button>
+  <button class="ntab" onclick="pg(4,this)"><i class="ti ti-user-check" style="font-size:12px;" aria-hidden="true"></i>أداء المرشدين</button>
+  <button class="ntab" onclick="pg(5,this)"><i class="ti ti-bell" style="font-size:12px;" aria-hidden="true"></i>التنبيهات<span class="badge" id="alert-badge">0</span></button>
+  <button class="ntab" onclick="pg(6,this)"><i class="ti ti-report-analytics" style="font-size:12px;" aria-hidden="true"></i>تقرير الموسم</button>
+  <div style="margin-right:auto;display:flex;align-items:center;gap:6px;padding:0 10px;" id="phase-switcher"></div>
+</div>
+
+<div class="content">
+
+<!-- ══ P0: الملخص التنفيذي ══════════════════════════════════ -->
+<div class="page on" id="p0">
+  <div class="krow" id="k0"></div>
+  <!-- drill-down panels -->
+  <div class="drill" id="dr-launched"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:600;color:var(--green);">🚌 الحافلات المُطلقة</span><button onclick="cdr('dr-launched')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);">×</button></div><div id="dr-launched-b"></div></div>
+  <div class="drill" id="dr-noguide"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:600;color:var(--red);">🔴 رحلات بدون مرشد</span><button onclick="cdr('dr-noguide')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);">×</button></div><div id="dr-noguide-b"></div></div>
+  <div class="drill" id="dr-late"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:600;color:var(--amber);">⚠️ الحافلات المتأخرة</span><button onclick="cdr('dr-late')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);">×</button></div><div id="dr-late-b"></div></div>
+  <div class="drill" id="dr-silent"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:600;color:var(--amber);">🔕 المرشدون الصامتون / لم يبدأوا</span><button onclick="cdr('dr-silent')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);">×</button></div><div id="dr-silent-b"></div></div>
+  <div class="drill" id="dr-interval"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:12px;font-weight:600;color:var(--amber);">⏱ ردود رُفضت (حد الوقت)</span><button onclick="cdr('dr-interval')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text3);">×</button></div><div id="dr-interval-b"></div></div>
+  <div class="g32">
+    <div class="card">
+      <div class="ch"><span class="ct">حركة الحافلات — اليوم</span><span class="cs">إطلاق vs وصول / ساعة</span></div>
+      <div style="position:relative;height:160px;"><canvas id="c0" role="img" aria-label="حركة الحافلات">بيانات الحركة.</canvas></div>
+      <div style="display:flex;gap:16px;margin-top:8px;font-size:10px;color:var(--text3);">
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:3px;background:var(--green);display:inline-block;border-radius:2px;"></span>إطلاق</span>
+        <span style="display:flex;align-items:center;gap:4px;"><span style="width:12px;height:3px;background:var(--blue);display:inline-block;border-radius:2px;border-top:3px dashed var(--blue);background:none;"></span>وصول</span>
+      </div>
+      <div class="sep"></div>
+      <!-- Heatmap الإطلاق بالساعة -->
+      <div style="font-size:10px;font-weight:600;color:var(--text2);margin-bottom:6px;">Heatmap الإطلاق</div>
+      <div class="hm-grid" id="hm0"></div>
+      <div class="hm-labels" id="hm-lbl"></div>
+    </div>
+    <div class="gcol">
+      <div class="card">
+        <div class="ch"><span class="ct">مؤشر الكفاءة OEE</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <svg viewBox="0 0 120 70" style="width:130px;">
+            <path d="M15,65 A50,50 0 0,1 105,65" fill="none" stroke="#eef1f5" stroke-width="9" stroke-linecap="round"/>
+            <path d="M15,65 A50,50 0 0,1 105,65" fill="none" stroke="var(--green)" stroke-width="9" stroke-linecap="round" stroke-dasharray="157" id="oee-arc" stroke-dashoffset="120"/>
+            <text x="60" y="60" text-anchor="middle" font-size="18" font-weight="700" fill="var(--text)" id="oee-v">0%</text>
+          </svg>
+          <div class="oee-sub">
+            <div class="oee-item"><div class="oee-v" style="color:var(--green);" id="oee-c">0%</div><div class="oee-l">إنجاز</div></div>
+            <div class="oee-item"><div class="oee-v" style="color:var(--amber);" id="oee-t">—</div><div class="oee-l">وقت</div></div>
+            <div class="oee-item"><div class="oee-v" style="color:var(--blue);" id="oee-q">0%</div><div class="oee-l">جودة</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">حالة الجراجات</span></div>
+        <div id="garages-box"></div>
+      </div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="ch"><span class="ct">إنجاز المراكز</span><span class="tag tb" id="ccount">—</span></div>
+      <div id="centers-prog"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">شركتا الضيافة</span></div>
+      <div id="companies-box"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">الطريق الآن</span><span class="tag" id="road-tag">—</span></div>
+      <div id="road-quick"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ P1: عمليات النقل ════════════════════════════════════ -->
+<div class="page" id="p1">
+  <div class="krow" id="k1"></div>
+  <!-- الجراجات أولاً -->
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><span class="ct">جراج 1 — الرفادة</span></div>
+      <div style="position:relative;height:130px;"><canvas id="c2" role="img" aria-label="جراج 1">بيانات.</canvas></div>
+      <div id="g1stats" style="margin-top:8px;"></div>
+      <!-- آخر إطلاقات الرفادة -->
+      <div style="margin-top:10px;">
+        <div style="font-size:9px;font-weight:600;color:var(--text3);margin-bottom:4px;">🚌 آخر الإطلاقات</div>
+        <div id="rf-launched"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">جراج 2 — رفاد</span></div>
+      <div style="position:relative;height:130px;"><canvas id="c3" role="img" aria-label="جراج 2">بيانات.</canvas></div>
+      <div id="g2stats" style="margin-top:8px;"></div>
+      <!-- آخر إطلاقات رفاد -->
+      <div style="margin-top:10px;">
+        <div style="font-size:9px;font-weight:600;color:var(--text3);margin-bottom:4px;">🚌 آخر الإطلاقات</div>
+        <div id="rd-launched"></div>
+      </div>
+    </div>
+  </div>
+  <!-- بدون مرشد مقسم -->
+  <div class="g2" style="margin-top:4px;">
+    <div class="card" style="border-top:2px solid var(--green);">
+      <div class="ch"><span class="ct" style="color:var(--green);">الرفادة — بدون مرشد</span><span class="tag tr" id="rf-noguide-cnt">0</span></div>
+      <div id="rf-noguide"></div>
+    </div>
+    <div class="card" style="border-top:2px solid var(--amber);">
+      <div class="ch"><span class="ct" style="color:var(--amber);">رفاد — بدون مرشد</span><span class="tag tr" id="rd-noguide-cnt">0</span></div>
+      <div id="rd-noguide"></div>
+    </div>
+  </div>
+  <!-- تفاصيل الشركات -->
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><span class="ct">الرفادة — تفصيلي</span><span class="tag tg" id="rfrate">—</span></div>
+      <div id="rf-detail"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">رفاد — تفصيلي</span><span class="tag tw" id="rdrate">—</span></div>
+      <div id="rd-detail"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="ch"><span class="ct">أداء شركات النقل</span><span class="cs">من bus_events</span></div>
+    <div id="transport-companies-box"></div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">آخر الأحداث</span><span class="cs">bus_events</span></div>
+    <div id="recent-ev"></div>
+  </div>
+</div>
+
+<!-- ══ P2: ذكاء الطريق ════════════════════════════════════ -->
+<div class="page" id="p2">
+  <div class="krow" id="k2"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><span class="ct">ملخص الطرق</span><span class="cs">داخل / خارج / على الطريق</span></div>
+      <div id="road-sum-list"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">تفاصيل النقاط</span><span class="cs">كل مدخل ومخرج</span></div>
+      <div id="road-cong-list"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">مقارنة المواقع — داخل vs خارج</span></div>
+    <div style="position:relative;height:170px;"><canvas id="c4" role="img" aria-label="مقارنة المواقع">بيانات.</canvas></div>
+  </div>
+</div>
+
+<!-- ══ P3: مراكز الخدمة ════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="krow" id="k3"></div>
+  <div class="g2" style="align-items:start;">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--green);padding:6px 4px;border-bottom:2px solid var(--green);margin-bottom:6px;">الرفادة <span id="rf-center-count" style="font-size:10px;font-weight:400;"></span></div>
+      <div id="centers-filter-rf" style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;"></div>
+      <div id="centers-rf"></div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--amber);padding:6px 4px;border-bottom:2px solid var(--amber);margin-bottom:6px;">رفاد <span id="rd-center-count" style="font-size:10px;font-weight:400;"></span></div>
+      <div id="centers-filter-rd" style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;"></div>
+      <div id="centers-rd"></div>
+    </div>
+  </div>
+  <div id="centers-grid" style="display:none;"></div>
+  <div class="card" style="margin-top:12px;">
+    <div class="ch"><span class="ct">مقارنة المراكز — نسبة الإنجاز</span></div>
+    <div style="position:relative;height:170px;"><canvas id="c5" role="img" aria-label="مقارنة المراكز">بيانات.</canvas></div>
+  </div>
+</div>
+
+<!-- ══ P4: أداء المرشدين ══════════════════════════════════ -->
+<div class="page" id="p4">
+  <div class="krow" id="k4"></div>
+  <!-- عمودان: الرفادة | رفاد — فلتر فوق كل عمود -->
+  <div class="g2" style="align-items:start;">
+    <div class="card" style="padding:10px;">
+      <div class="ch" style="margin-bottom:6px;"><span class="ct" style="color:var(--green);">الرفادة</span><span class="tag tg" id="rf-guide-count">—</span></div>
+      <div id="guide-filters" style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;">
+        <button class="tag tg" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRf('all',this)">الكل</button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRf('done',this)">✅<br><span style='font-size:7px;'>مكتمل</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRf('pending',this)">🔄<br><span style='font-size:7px;'>غير مكتمل</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRf('late',this)">⚠️<br><span style='font-size:7px;'>متأخر</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRf('silent',this)">🔕<br><span style='font-size:7px;'>صامت</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRf('notstarted',this)">⏳<br><span style='font-size:7px;'>لم يبدأ</span></button>
+      </div>
+      <div id="guides-rf"></div>
+    </div>
+    <div class="card" style="padding:10px;">
+      <div class="ch" style="margin-bottom:6px;"><span class="ct" style="color:var(--amber);">رفاد</span><span class="tag tw" id="rd-guide-count">—</span></div>
+      <div id="guide-filters-rd" style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;">
+        <button class="tag tg" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRd('all',this)">الكل</button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRd('done',this)">✅<br><span style='font-size:7px;'>مكتمل</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRd('pending',this)">🔄<br><span style='font-size:7px;'>غير مكتمل</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRd('late',this)">⚠️<br><span style='font-size:7px;'>متأخر</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRd('silent',this)">🔕<br><span style='font-size:7px;'>صامت</span></button>
+        <button class="tag tb" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="filterRd('notstarted',this)">⏳<br><span style='font-size:7px;'>لم يبدأ</span></button>
+      </div>
+      <div id="guides-rd"></div>
+    </div>
+  </div>
+  <!-- رسم + إحصاء -->
+  <div class="g2" style="align-items:start;margin-top:12px;">
+    <div class="card">
+      <div class="ch"><span class="ct">توزيع الأداء</span></div>
+      <div style="position:relative;height:150px;"><canvas id="c6" role="img" aria-label="توزيع أداء المرشدين">بيانات.</canvas></div>
+      <div id="g-legend" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:9px;color:var(--text3);"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">إحصاءات المرشدين</span></div>
+      <div id="guide-stats"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ P5: التنبيهات ══════════════════════════════════════ -->
+<div class="page" id="p5">
+  <div class="krow" id="k5"></div>
+  <div class="card">
+    <div class="ch"><span class="ct">مركز التنبيهات</span><span class="tag tr" id="crit-cnt">0 حرجة</span></div>
+    <div id="alerts-list"></div>
+  </div>
+</div>
+
+<!-- ══ P6: تقرير الموسم ══════════════════════════════════ -->
+<div class="page" id="p6">
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;" id="season-kpis"></div>
+  <div class="g3">
+    <div class="card">
+      <div class="ch"><span class="ct">أداء المراحل</span></div>
+      <div style="position:relative;height:170px;"><canvas id="c7" role="img" aria-label="أداء المراحل">بيانات.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">مقارنة المراحل السابقة</span></div>
+      <div style="position:relative;height:170px;"><canvas id="c8" role="img" aria-label="مقارنة المراحل">بيانات.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">ترشيح المرشدين</span></div>
+      <div id="guide-rec"></div>
+      <button onclick="exportPDF()" style="width:100%;margin-top:10px;padding:8px;border-radius:var(--r);background:var(--blue2);border:1px solid var(--blue3);color:var(--blue);font-size:11px;cursor:pointer;font-family:var(--font);display:flex;align-items:center;justify-content:center;gap:5px;">
+        <i class="ti ti-file-type-pdf" aria-hidden="true"></i>تصدير التقرير الكامل PDF
+      </button>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ch"><span class="ct">الملخص التنفيذي النهائي</span><span class="tag tg">كامل</span></div>
+      <div id="season-sum"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">ملخص شركات النقل</span></div>
+      <div id="transport-sum"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<div class="foot">
+  <span id="last-upd">آخر تحديث: —</span>
+  <span>موسم الحج 1447 · مشير v3.0 Ultimate</span>
+</div>
+
+<script>
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxdAW9MyQfK0H9GDg3TQxSIb5JJ0G20epqYSujLc5eHo91AvIGK1qpkDDic4Uv_bHX5KQ/exec";
+
+// ── بيانات تجريبية واقعية ─────────────────────────────────────────
+const DEMO={
+  phases:{success:true,phase_id:1,phase_name:"تروية مكة - منى",phases:[{phase_id:1,phase_name:"تروية مكة - منى",required_cycles:3,miladi_start_datetime:"2026-05-24T20:30:00",miladi_end_datetime:"2026-05-25T09:00:00"}],has_overlap:false},
+  perf:{success:true,data:[
+    {center_id:"1",center_name:"الرفادة 1",company_name:"الرفادة",phase_id:"1",total_pilgrims:"1974",required_cycles:"3",target_trips:"42",completed_cycles:"38",completion_rate:"90.5",transport_type:"مسار 3 - ترددي",guides_assigned:"4",no_guide_trips:"1"},
+    {center_id:"2",center_name:"الرفادة 2",company_name:"الرفادة",phase_id:"1",total_pilgrims:"1974",required_cycles:"3",target_trips:"42",completed_cycles:"34",completion_rate:"81.0",transport_type:"مسار 3 - ترددي",guides_assigned:"4",no_guide_trips:"2"},
+    {center_id:"3",center_name:"الرفادة 3",company_name:"الرفادة",phase_id:"1",total_pilgrims:"1974",required_cycles:"3",target_trips:"42",completed_cycles:"19",completion_rate:"45.2",transport_type:"مسار 3 - ترددي",guides_assigned:"4",no_guide_trips:"0"},
+    {center_id:"4",center_name:"الرفادة 4",company_name:"الرفادة",phase_id:"1",total_pilgrims:"1974",required_cycles:"3",target_trips:"42",completed_cycles:"41",completion_rate:"97.6",transport_type:"مسار 3 - ترددي",guides_assigned:"4",no_guide_trips:"0"},
+    {center_id:"5",center_name:"رفاد 20",company_name:"رفاد",phase_id:"1",total_pilgrims:"1690",required_cycles:"3",target_trips:"36",completed_cycles:"33",completion_rate:"91.7",transport_type:"تقليدي",guides_assigned:"3",no_guide_trips:"0"},
+    {center_id:"6",center_name:"رفاد 22",company_name:"رفاد",phase_id:"1",total_pilgrims:"1207",required_cycles:"3",target_trips:"26",completed_cycles:"21",completion_rate:"80.8",transport_type:"تقليدي",guides_assigned:"3",no_guide_trips:"1"},
+    {center_id:"7",center_name:"رفاد 70",company_name:"رفاد",phase_id:"1",total_pilgrims:"1127",required_cycles:"3",target_trips:"24",completed_cycles:"9",completion_rate:"37.5",transport_type:"تقليدي",guides_assigned:"2",no_guide_trips:"3"},
+  ]},
+  events:{success:true,data:[
+    {event_id:"1",timestamp:"2026-05-24T22:15:00",event_type:"garage_release",form_num:"673459101",garage_id:"1",center_id:"1",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"2",timestamp:"2026-05-24T22:30:00",event_type:"garage_release",form_num:"673459102",garage_id:"1",center_id:"2",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"3",timestamp:"2026-05-24T22:45:00",event_type:"garage_release",form_num:"673459103",garage_id:"2",center_id:"5",phase_id:"1",operator_company_id:"2",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"4",timestamp:"2026-05-24T23:15:00",event_type:"center_arrival",form_num:"673459101",garage_id:"1",center_id:"1",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"47",pilgrim_official:"47",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"5",timestamp:"2026-05-24T23:30:00",event_type:"center_arrival",form_num:"673459102",garage_id:"1",center_id:"2",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"42",pilgrim_official:"47",guide_skipped:"FALSE",delay_minutes:"5"},
+    {event_id:"6",timestamp:"2026-05-24T23:45:00",event_type:"garage_release",form_num:"673459104",garage_id:"1",center_id:"1",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"7",timestamp:"2026-05-25T00:00:00",event_type:"center_arrival",form_num:"673459103",garage_id:"2",center_id:"5",phase_id:"1",operator_company_id:"2",pilgrim_count_actual:"47",pilgrim_official:"47",guide_skipped:"TRUE",delay_minutes:"0"},
+    {event_id:"8",timestamp:"2026-05-25T00:15:00",event_type:"garage_release",form_num:"673459105",garage_id:"2",center_id:"6",phase_id:"1",operator_company_id:"2",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"9",timestamp:"2026-05-25T00:45:00",event_type:"center_arrival",form_num:"673459104",garage_id:"1",center_id:"1",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"47",pilgrim_official:"47",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"10",timestamp:"2026-05-25T01:00:00",event_type:"garage_release",form_num:"673459106",garage_id:"1",center_id:"3",phase_id:"1",operator_company_id:"1",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+    {event_id:"11",timestamp:"2026-05-25T01:20:00",event_type:"center_arrival",form_num:"673459105",garage_id:"2",center_id:"6",phase_id:"1",operator_company_id:"2",pilgrim_count_actual:"45",pilgrim_official:"47",guide_skipped:"FALSE",delay_minutes:"8"},
+    {event_id:"12",timestamp:"2026-05-25T01:45:00",event_type:"garage_release",form_num:"673459107",garage_id:"2",center_id:"7",phase_id:"1",operator_company_id:"2",pilgrim_count_actual:"0",pilgrim_official:"0",guide_skipped:"FALSE",delay_minutes:"0"},
+  ]},
+  roadSum:{success:true,data:[
+    {road_id:"1",road_name:"طريق الملك عبدالعزيز",total_in:"135",total_out:"96",on_road_now:"39",avg_dwell_min:"4 د",avg_rate_per_min:"28.9 ح/د",last_updated:"2026-05-25 01:40",status:"🔵 جاري الرصد"},
+    {road_id:"2",road_name:"طريق المشاعر",total_in:"60",total_out:"30",on_road_now:"30",avg_dwell_min:"2 د",avg_rate_per_min:"22.5 ح/د",last_updated:"2026-05-25 01:37",status:"🔵 جاري الرصد"},
+    {road_id:"3",road_name:"طريق عرفات",total_in:"140",total_out:"75",on_road_now:"65",avg_dwell_min:"3 د",avg_rate_per_min:"26.9 ح/د",last_updated:"2026-05-25 01:46",status:"🔵 جاري الرصد"},
+    {road_id:"4",road_name:"طريق المزدلفة",total_in:"40",total_out:"32",on_road_now:"8",avg_dwell_min:"4 د",avg_rate_per_min:"12 ح/د",last_updated:"2026-05-25 01:11",status:"🔵 جاري الرصد"},
+    {road_id:"5",road_name:"مسار 3 - ترددي",total_in:"0",total_out:"0",on_road_now:"0",avg_dwell_min:"—",avg_rate_per_min:"—",last_updated:"—",status:"⚪ فارغ"},
+  ]},
+  roadCong:{success:true,data:[
+    {location_id:"1",location_name:"مدخل مكة — طريق الملك عبدالعزيز",location_type:"in",capacity:"1000",total_in:"135",total_out:"0",current_on_road:"135",congestion_pct:"13.5%",congestion_status:"🔵 جاري الرصد",last_updated:"2026-05-25 01:37",avg_dwell_min:"4 د",avg_rate_per_min:"33.8 ح/د"},
+    {location_id:"2",location_name:"مخرج مكة — طريق الملك عبدالعزيز",location_type:"out",capacity:"1000",total_in:"0",total_out:"96",current_on_road:"0",congestion_pct:"0.0%",congestion_status:"⚪ فارغ",last_updated:"2026-05-25 01:40",avg_dwell_min:"—",avg_rate_per_min:"24 ح/د"},
+    {location_id:"3",location_name:"مدخل منى — طريق المشاعر",location_type:"in",capacity:"800",total_in:"60",total_out:"0",current_on_road:"60",congestion_pct:"7.5%",congestion_status:"🔵 جاري الرصد",last_updated:"2026-05-25 01:36",avg_dwell_min:"2 د",avg_rate_per_min:"30 ح/د"},
+    {location_id:"4",location_name:"مخرج منى — طريق المشاعر",location_type:"out",capacity:"800",total_in:"0",total_out:"30",current_on_road:"0",congestion_pct:"0.0%",congestion_status:"⚪ فارغ",last_updated:"2026-05-25 01:37",avg_dwell_min:"—",avg_rate_per_min:"15 ح/د"},
+  ]},
+  persons:{success:true,data:[
+    {person_id:"1",name_ar:"عمر محمد سيت",person_type:"guide",center_name:"الرفادة 1",center_id:"1",mobile:"0566919076",is_active:"TRUE",hospitality_company:"شركة الرفادة"},
+    {person_id:"2",name_ar:"خالد عبدالله المطيري",person_type:"guide",center_name:"الرفادة 2",center_id:"2",mobile:"0501234567",is_active:"TRUE",hospitality_company:"شركة الرفادة"},
+    {person_id:"3",name_ar:"محمد سعد الحربي",person_type:"guide",center_name:"رفاد 20",center_id:"5",mobile:"0557891234",is_active:"TRUE",hospitality_company:"شركة رفاد"},
+    {person_id:"4",name_ar:"عبدالرحمن فهد العتيبي",person_type:"guide",center_name:"الرفادة 4",center_id:"4",mobile:"0509876543",is_active:"TRUE",hospitality_company:"شركة الرفادة"},
+    {person_id:"5",name_ar:"سالم مبارك الدوسري",person_type:"guide",center_name:"رفاد 22",center_id:"6",mobile:"0543216789",is_active:"FALSE",hospitality_company:"شركة رفاد"},
+  ]},
+};
+
+// ── callScript ─────────────────────────────────────────────────────
+function callScript(action,payload={}){
+  return new Promise(resolve=>{
+    try{
+      google.script.run
+        .withSuccessHandler(r=>resolve(typeof r==="string"?JSON.parse(r):r))
+        .withFailureHandler(()=>resolve(DEMO[action]||{success:false,data:[]}))
+        .handleAction(action,JSON.stringify(payload));
+    }catch(e){resolve(DEMO[action]||{success:false,data:[]});}
+  });
+}
+
+// ── المتغيرات ───────────────────────────────────────────────────────
+let SEASON=1,PHASE=null,DATA={},charts={},_curPage=0;
+let phaseStart=null,phaseEnd=null;
+let ALL_PHASES_LIST=[];
+let CURRENT_PHASE_IDX=0;
+
+function switchPhase(idx){
+  CURRENT_PHASE_IDX=idx;
+  PHASE=ALL_PHASES_LIST[idx];
+  document.querySelectorAll("[id^='ps-']").forEach((b,i)=>{
+    b.className="tag "+(i===idx?"tg":"tn");
+    b.style.cssText="cursor:pointer;border:none;font-family:var(--font);padding:3px 8px;";
+  });
+  document.getElementById("phase-name").textContent=PHASE.phase_name;
+  buildP0();buildP1();buildP3();
+}
+
+// ── تهيئة ──────────────────────────────────────────────────────────
+async function init(){
+  try{
+    SEASON=parseInt(sessionStorage.getItem("mashir_season")||"1");
+    PHASE=JSON.parse(sessionStorage.getItem("mashir_phase")||"null");
+  }catch(e){}
+  updateClock(); setInterval(updateClock,1000);
+  document.getElementById("loader").classList.add("hide");
+  loadAll();
+  document.getElementById("loader").style.transition="opacity .3s";
+  setTimeout(function(){
+    document.getElementById("loader").style.opacity="0";
+    document.getElementById("loader").style.pointerEvents="none";
+  },2000);
+
+  // تحديث كامل كل 15 ثانية
+  setInterval(function(){
+    if(!document.hidden) loadAll();
+  },15000);
+
+  // تحديث الطريق كل 10 ثوانٍ
+  setInterval(function(){
+    if(document.hidden) return;
+    callScript("getRoadSummary",{seasonId:SEASON}).then(function(r){
+      if(r&&r.success){
+        DATA.roadSum  = Array.isArray(r.summary)    ? r.summary    : [];
+        DATA.roadCong = Array.isArray(r.congestion) ? r.congestion : [];
+        if(window._curPage===2) buildP2();
+      }
+    });
+  },10000);
+
+  // تحديث كامل كل 5 دقائق كـ fallback
+  setInterval(function(){ if(!document.hidden) loadAll(); },300000);
+
+  document.addEventListener("visibilitychange",function(){
+    if(!document.hidden) loadAll();
+  });
+}
+// ── الساعة والتايم لاين ─────────────────────────────────────────────
+function updateClock(){
+  const now=new Date();
+  document.getElementById("clock").innerHTML=
+    now.toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit",second:"2-digit"})+"<br>"+
+    now.toLocaleDateString("ar-SA",{weekday:"short",day:"numeric",month:"long"});
+  if(phaseEnd){
+    const rem=Math.max(0,phaseEnd-now);
+    const h=Math.floor(rem/3600000),m=Math.floor(rem%3600000/60000),s=Math.floor(rem%60000/1000);
+    document.getElementById("countdown").textContent=
+      (h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+  }
+  if(phaseStart&&phaseEnd){
+    const pct=Math.min(100,Math.max(0,(now-phaseStart)/(phaseEnd-phaseStart)*100));
+    document.getElementById("tl-fill").style.width=pct+"%";
+    document.getElementById("tl-mark").style.right=(100-pct)+"%";
+    document.getElementById("tl-pct").textContent=Math.round(pct)+"% منجز";
+  }
+}
+
+// ── تحميل البيانات ──────────────────────────────────────────────────
+async function loadAll(){
+  if(!DATA||!DATA.events) DATA={perf:[],events:[],roadCong:[],roadSum:[],persons:[],alerts:[]};
+
+  try {
+    const all = await callScript("getAllDashboardData",{seasonId:SEASON});
+    if(!all||!all.success) return;
+
+    const phases    = all.phases   || {success:false,phases:[]};
+    const perf      = all.perf     || {success:false,data:[]};
+    const events    = all.events   || {success:false,data:[]};
+    const roadSumRaw= all.road     || {success:false,summary:[],congestion:[]};
+    const persons   = all.guides   || {success:false,data:[]};
+    const alertsR   = all.alerts   || {success:false,data:[]};
+    const fullPerfR = all.fullPerf || null;
+
+    if(phases.success&&phases.phases&&phases.phases.length){
+      PHASE=phases.phases[0];
+      ALL_PHASES_LIST=phases.phases;
+      document.getElementById("phase-name").textContent=phases.has_overlap?phases.phases.map(function(p){return p.phase_name;}).join(" + "):PHASE.phase_name;
+      if(PHASE.miladi_start_datetime) phaseStart=new Date(PHASE.miladi_start_datetime);
+      if(PHASE.miladi_end_datetime)   phaseEnd=new Date(PHASE.miladi_end_datetime);
+      if(phaseStart) document.getElementById("tl-s").textContent=phaseStart.toLocaleDateString("ar-SA",{month:"short",day:"numeric"})+" "+phaseStart.toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
+      if(phaseEnd)   document.getElementById("tl-e").textContent=phaseEnd.toLocaleDateString("ar-SA",{month:"short",day:"numeric"})+" "+phaseEnd.toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
+      if(phases.has_overlap&&phases.phases.length>1){
+        document.getElementById("phase-switcher").innerHTML=
+          phases.phases.map(function(p,i){
+            return '<button onclick="switchPhase('+i+')" id="ps-'+i+'" class="tag '+(i===0?"tg":"tn")+'" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 8px;">'+p.phase_name+'</button>';
+          }).join("");
+      }
+    }
+
+    if(alertsR.success){
+      var unread=(alertsR.critical||0)+(alertsR.warnings||0);
+      var badge=document.getElementById("alert-badge");
+      if(badge){badge.textContent=unread;badge.style.display=unread>0?"inline-flex":"none";}
+    }
+
+    DATA={
+      perf:    Array.isArray(perf.data)  ? perf.data  : [],
+      events:  Array.isArray(events.data)? events.data: [],
+      roadCong:Array.isArray(roadSumRaw.congestion)?roadSumRaw.congestion:[],
+      roadSum: Array.isArray(roadSumRaw.summary)   ?roadSumRaw.summary   :[],
+      persons: Array.isArray(persons.data)?persons.data:[],
+      alerts:  alertsR.success?alertsR.data:[],
+      fullPerf:fullPerfR&&fullPerfR.success?fullPerfR:null,
+    };
+    // بناء خريطة أسماء شركات النقل للاستخدام في كل مكان
+    window.CO_NAMES_MAP = {};
+    if(DATA.fullPerf && Array.isArray(DATA.fullPerf.companies)){
+      DATA.fullPerf.companies.forEach(function(c){
+        if(c.company_id) window.CO_NAMES_MAP[String(c.company_id)] = c.company_name || ("شركة "+c.company_id);
+      });
+    }
+    // أضف أسماء من events مباشرة (company_name مضاف من Code.gs)
+    if(Array.isArray(DATA.events)){
+      DATA.events.forEach(function(e){
+        if(e.operator_company_id && e.company_name){
+          window.CO_NAMES_MAP[String(e.operator_company_id)] = e.company_name;
+        }
+      });
+    }
+    document.getElementById("last-upd").textContent="آخر تحديث: "+new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
+    if(typeof Chart!=="undefined"){
+      var builders={0:buildP0,1:buildP1,2:buildP2,3:buildP3,4:buildP4,5:buildP5,6:buildP6};
+      if(builders[window._curPage]) builders[window._curPage]();
+      else buildP0();
+    }
+  } catch(err){
+    console.error("loadAll error:",err);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════
+// P0 — الملخص التنفيذي
+// ══════════════════════════════════════════════════════════════════
+function buildP0(){
+  const ev=DATA.events,perf=DATA.perf,road=DATA.roadSum;
+  const rel=ev.filter(e=>e.event_type==="garage_release").length;
+  const arr=ev.filter(e=>e.event_type==="center_arrival").length;
+  const noG=ev.filter(e=>e.guide_skipped==="TRUE").length;
+  const pil=ev.filter(e=>e.event_type==="center_arrival").reduce((s,e)=>s+(parseFloat(e.pilgrim_count_actual)||0),0);
+  const onRd=road.reduce((s,r)=>s+(parseFloat(r.on_road_now)||0),0);
+
+  // KPIs — أرقام فقط مع تقسيم رفادة/رفاد ونسبة المرحلة
+  const relRf=ev.filter(e=>e.event_type==="garage_release"&&String(e.garage_id)==="1").length;
+  const relRd=ev.filter(e=>e.event_type==="garage_release"&&String(e.garage_id)==="2").length;
+  const noGRf=ev.filter(e=>e.guide_skipped==="TRUE"&&String(e.garage_id)==="1").length;
+  const noGRd=ev.filter(e=>e.guide_skipped==="TRUE"&&String(e.garage_id)==="2").length;
+
+  // نسبة إنجاز المرحلة من fullPerf
+  const fp0=DATA.fullPerf;
+  const phasePct = fp0&&fp0.summary ? (fp0.summary.completion_pct||0) : 0;
+  const phaseName= fp0&&fp0.summary ? (fp0.summary.phase_name||"المرحلة الحالية") : "المرحلة الحالية";
+  const phasePctCol = phasePct>=80?"var(--green)":phasePct>=50?"var(--amber)":"var(--red)";
+
+  // الوقت المتبقي في المرحلة
+  let timeLeftStr = "—";
+  try {
+    const activePhase = fp0&&fp0.phases&&fp0.phases[0];
+    if(activePhase&&activePhase.end_dt){
+      const diff=new Date(activePhase.end_dt)-Date.now();
+      if(diff>0){
+        const hrs=Math.floor(diff/3600000), mins=Math.floor((diff%3600000)/60000);
+        timeLeftStr=hrs+"س "+mins+"د";
+      } else { timeLeftStr="انتهت"; }
+    }
+  } catch(ex){}
+
+  document.getElementById("k0").innerHTML=`
+    <div class="kc" style="border-top:3px solid ${phasePctCol};background:var(--bg2);">
+      <div class="k-lbl" style="font-size:9px;">${phaseName}</div>
+      <div class="k-val" style="color:${phasePctCol};font-size:22px;">${phasePct}%</div>
+      <div class="k-sub">⏱ متبقي: ${timeLeftStr}</div>
+    </div>
+    <div class="kc kc-g" onclick="tdr('dr-launched')" style="cursor:pointer;">
+      <i class="ti ti-rocket k-ico" aria-hidden="true"></i>
+      <div class="k-lbl">حافلات أُطلقت</div>
+      <div class="k-val">${rel||"—"}</div>
+      <div class="k-sub">الرفادة ${relRf} · رفاد ${relRd}</div>
+    </div>
+    <div class="kc kc-b">
+      <div class="k-lbl">حجاج نُقلوا</div>
+      <div class="k-val">${pil?pil.toLocaleString("ar-SA"):"—"}</div>
+      <div class="k-sub">رسمي + إضافي</div>
+    </div>
+    <div class="kc kc-g">
+      <div class="k-lbl">وصلت للمركز</div>
+      <div class="k-val">${arr||"—"}</div>
+      <div class="k-sub" style="color:var(--blue);">${rel?Math.round(arr/rel*100):"—"}% من المُطلق</div>
+    </div>
+    <div class="kc kc-a">
+      <i class="ti ti-road k-ico" aria-hidden="true"></i>
+      <div class="k-lbl">على الطريق الآن</div>
+      <div class="k-val" style="color:var(--amber);">${onRd||"—"}</div>
+      <div class="k-sub">جميع الطرق</div>
+    </div>
+    <div class="kc kc-r" onclick="tdr('dr-noguide')" style="cursor:pointer;">
+      <i class="ti ti-user-off k-ico" aria-hidden="true"></i>
+      <div class="k-lbl">بدون مرشد</div>
+      <div class="k-val" style="color:var(--red);">${noG}</div>
+      <div class="k-sub" style="color:var(--red);">الرفادة ${noGRf} · رفاد ${noGRd}</div>
+    </div>
+  `;
+
+  // Chart حركة الحافلات
+  const hrs=Array.from({length:12},(_,i)=>String(20+i>23?20+i-24:20+i).padStart(2,"0"));
+  const relHr=new Array(12).fill(0),arrHr=new Array(12).fill(0);
+  ev.forEach(e=>{
+    try{
+      const h=new Date(e.timestamp).getHours();
+      const idx=h>=20?h-20:h+(24-20);
+      if(idx>=0&&idx<12){
+        if(e.event_type==="garage_release") relHr[idx]++;
+        if(e.event_type==="center_arrival") arrHr[idx]++;
+      }
+    }catch(ex){}
+  });
+  if(charts.c0) charts.c0.destroy();
+  charts.c0=new Chart(document.getElementById("c0"),{
+    type:"line",
+    data:{labels:hrs,datasets:[
+      {data:relHr,borderColor:"#0F6E56",backgroundColor:"rgba(15,110,86,.08)",tension:.4,pointRadius:3,pointBackgroundColor:"#0F6E56",fill:true,pointStyle:"circle"},
+      {data:arrHr,borderColor:"#1a5fa8",backgroundColor:"rgba(26,95,168,.05)",tension:.4,pointRadius:3,pointBackgroundColor:"#1a5fa8",fill:true,borderDash:[5,3],pointStyle:"rect"}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:"#8a97a8",font:{size:9}},grid:{color:"rgba(0,0,0,.05)"}},
+      y:{ticks:{color:"#8a97a8",font:{size:9}},grid:{color:"rgba(0,0,0,.05)"}}
+    }}
+  });
+
+  // Heatmap — من بيانات حقيقية
+  const hmHrs=["21","22","23","00","01","02","03","04","05","06","07","08"];
+  const hmData=new Array(12).fill(0);
+  ev.forEach(e=>{
+    if(e.event_type!=="garage_release") return;
+    try{const h=new Date(e.timestamp).getHours();const idx=h>=21?h-21:h+(24-21);if(idx>=0&&idx<12)hmData[idx]++;}catch(ex){}
+  });
+  const maxHm=Math.max(...hmData,1);
+  let hmHTML="",lblHTML="";
+  hmHrs.forEach((h,i)=>{
+    const v=hmData[i];const intensity=Math.round(v/maxHm*100);
+    const bg=intensity>80?"#0F6E56":intensity>60?"#1a7f6a":intensity>40?"#5daa97":intensity>20?"#9fd4c9":v>0?"#d8f0eb":"#f0f3f7";
+    const tc=intensity>40?"rgba(255,255,255,.9)":"var(--text3)";
+    hmHTML+=`<div class="hm-cell" style="background:${bg};color:${tc};">${v||""}</div>`;
+    lblHTML+=`<div class="hm-lbl">${h}</div>`;
+  });
+  document.getElementById("hm0").innerHTML=hmHTML;
+  document.getElementById("hm-lbl").innerHTML=lblHTML;
+
+  // OEE — إنجاز × جودة × وقت
+  const comp=rel>0?Math.round(arr/rel*100):0;
+  const qual=arr>0?Math.round((arr-noG)/arr*100):0;
+  const phaseElap=phaseStart&&phaseEnd?Math.min(100,Math.max(0,(new Date()-phaseStart)/(phaseEnd-phaseStart)*100)):0;
+  const timeEff=phaseElap>0?Math.min(100,Math.round(comp/phaseElap*100)):0;
+  const oeeVal=Math.round(comp*qual/100);
+  document.getElementById("oee-v").textContent=oeeVal+"%";
+  document.getElementById("oee-c").textContent=comp+"%";
+  document.getElementById("oee-q").textContent=qual+"%";
+  document.getElementById("oee-t").textContent=timeEff>0?timeEff+"%":"—";
+  document.getElementById("oee-arc").setAttribute("stroke-dashoffset",157*(1-oeeVal/100));
+  // لون OEE حسب القيمة
+  const oeeColor=oeeVal>=80?"var(--green)":oeeVal>=60?"var(--amber)":"var(--red)";
+  document.getElementById("oee-arc").setAttribute("stroke",oeeColor);
+  document.getElementById("oee-v").setAttribute("fill",oeeColor);
+
+  // الجراجات
+  const g1=ev.filter(e=>e.event_type==="garage_release"&&String(e.garage_id)==="1").length;
+  const g2=ev.filter(e=>e.event_type==="garage_release"&&String(e.garage_id)==="2").length;
+  document.getElementById("garages-box").innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <div style="background:var(--green2);border:1px solid var(--green3);border-radius:var(--r);padding:10px;text-align:center;">
+        <div style="font-size:24px;font-weight:700;color:var(--green);">${g1}</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:2px;">جراج 1 — الرفادة</div>
+      </div>
+      <div style="background:var(--amber2);border:1px solid var(--amber3);border-radius:var(--r);padding:10px;text-align:center;">
+        <div style="font-size:24px;font-weight:700;color:var(--amber);">${g2}</div>
+        <div style="font-size:9px;color:var(--text3);margin-top:2px;">جراج 2 — رفاد</div>
+      </div>
+    </div>
+  `;
+
+  // إنجاز المراكز — من fullPerf
+  var fp = DATA.fullPerf;
+  var fpCenters = fp && fp.centers ? fp.centers : [];
+  var names = fpCenters.filter(function(c){return c.target_trips>0;});
+  document.getElementById("ccount").textContent=fpCenters.length+" مركز";
+  document.getElementById("centers-prog").innerHTML=names.slice(0,7).map(function(c){
+    var p=c.completion_pct||0;
+    var col=p>=80?"var(--green)":p>=50?"var(--amber)":"var(--red)";
+    return '<div class="pr"><div class="pl"><span>'+c.center_name+'</span><span style="color:'+col+';font-weight:600;">'+p+'%</span></div><div class="pb"><div class="pf" style="width:'+p+'%;background:'+col+';"></div></div></div>';
+  }).join("")||"<div style='font-size:11px;color:var(--text3);'>لا بيانات</div>";
+
+  // الشركتان — من fullPerf
+  var rf=fpCenters.filter(function(c){return (c.company_name||"").indexOf("الرفادة")>=0;});
+  var rd=fpCenters.filter(function(c){return (c.company_name||"").indexOf("رفاد")>=0&&(c.company_name||"").indexOf("الرفادة")<0;});
+
+  function coStats(centers){
+    return {
+      count:   centers.length,
+      tripsT:  centers.reduce(function(s,c){return s+(c.target_trips||0);},0),
+      tripsD:  centers.reduce(function(s,c){return s+(c.arrived||0);},0),
+      pilT:    centers.reduce(function(s,c){return s+(c.pilgrim_count||0);},0),
+      pilA:    centers.reduce(function(s,c){return s+(c.pilgrims_actual||0);},0),
+      noG:     centers.reduce(function(s,c){return s+(c.no_guide_trips||0);},0),
+    };
+  }
+
+  function coCard(stats, name, col, bg, border){
+    var p   = stats.tripsT>0 ? Math.round(stats.tripsD/stats.tripsT*100) : 0;
+    var pilR= Math.max(0, stats.pilT - stats.pilA);
+    var trR = Math.max(0, stats.tripsT - stats.tripsD);
+    return '<div style="background:'+bg+';border:1px solid '+border+';border-radius:var(--r);padding:10px;margin-bottom:8px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">'
+        +'<span style="font-size:12px;font-weight:700;color:'+col+';">'+name+'</span>'
+        +'<span style="font-size:13px;font-weight:700;color:'+col+';">'+p+'%</span></div>'
+      +'<div class="pb" style="margin-bottom:8px;height:6px;"><div class="pf" style="width:'+p+'%;background:'+col+';height:6px;"></div></div>'
+      // الردود
+      +'<div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:3px;">الردود</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;">'
+        +'<div style="text-align:center;background:var(--bg2);border-radius:4px;padding:4px;">'
+          +'<div style="font-weight:700;font-size:13px;">'+stats.tripsT+'</div><div style="font-size:8px;color:var(--text3);">مستهدف</div></div>'
+        +'<div style="text-align:center;background:var(--bg2);border-radius:4px;padding:4px;">'
+          +'<div style="font-weight:700;font-size:13px;color:'+col+';">'+stats.tripsD+'</div><div style="font-size:8px;color:var(--text3);">منجز</div></div>'
+        +'<div style="text-align:center;background:var(--bg2);border-radius:4px;padding:4px;">'
+          +'<div style="font-weight:700;font-size:13px;color:var(--amber);">'+trR+'</div><div style="font-size:8px;color:var(--text3);">متبقي</div></div>'
+      +'</div>'
+      // الحجاج
+      +'<div style="font-size:9px;color:var(--text3);font-weight:600;margin-bottom:3px;">الحجاج</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;">'
+        +'<div style="text-align:center;background:var(--bg2);border-radius:4px;padding:4px;">'
+          +'<div style="font-weight:700;font-size:11px;">'+stats.pilT.toLocaleString("ar-SA")+'</div><div style="font-size:8px;color:var(--text3);">مستهدف</div></div>'
+        +'<div style="text-align:center;background:var(--bg2);border-radius:4px;padding:4px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--green);">'+stats.pilA.toLocaleString("ar-SA")+'</div><div style="font-size:8px;color:var(--text3);">تم</div></div>'
+        +'<div style="text-align:center;background:var(--bg2);border-radius:4px;padding:4px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--amber);">'+pilR.toLocaleString("ar-SA")+'</div><div style="font-size:8px;color:var(--text3);">متبقي</div></div>'
+      +'</div>'
+      +(stats.noG>0?'<div style="margin-top:5px;font-size:9px;color:var(--red);">'+stats.noG+' رد بدون مرشد</div>':'')
+      +'<div style="margin-top:5px;font-size:9px;color:var(--text3);">'+stats.count+' مركز</div>'
+      +'</div>';
+  }
+
+  document.getElementById("companies-box").innerHTML=
+    coCard(coStats(rf),"شركة الرفادة","var(--green)","var(--green2)","var(--green3)")
+   +coCard(coStats(rd),"شركة رفاد","var(--amber)","var(--amber2)","var(--amber3)");
+
+  // إنجاز المراكز ٨٠%+
+  var done80=fpCenters.filter(function(c){return c.completion_pct>=80;}).length;
+  document.getElementById("ccount").textContent=fpCenters.length+" مركز";
+  var doneEl=document.querySelector(".kc .k-val[data-done80]");
+  // تحديث KPI أنجزت 80%+
+  var k3El=document.getElementById("k3");
+  if(k3El){
+    var kpis=k3El.querySelectorAll(".k-val");
+    if(kpis[1]) kpis[1].textContent=done80;
+  }
+
+  // الطريق السريع
+  const actR=DATA.roadSum.filter(r=>parseFloat(r.on_road_now)>0);
+  const rTag=document.getElementById("road-tag");
+  rTag.textContent=actR.length+" طريق نشط";rTag.className="tag "+(actR.length>0?"tg":"tn");
+  document.getElementById("road-quick").innerHTML=DATA.roadSum.map(r=>{
+    const on=parseFloat(r.on_road_now)||0;
+    const cls=on>100?"ri-a":on>0?"ri-g":"ri-n";
+    const dc=on>100?"var(--amber)":on>0?"var(--green)":"var(--text3)";
+    return`<div class="ri ${cls}">
+      <div class="rdot" style="background:${dc};"></div>
+      <div class="rname" style="color:${dc};">${r.road_name||"—"}</div>
+      <div class="rnums">
+        <div class="rnum"><b>${r.total_in||0}</b><span>↓داخل</span></div>
+        <div class="rnum"><b>${r.total_out||0}</b><span>↑خارج</span></div>
+        <div class="rnum"><b style="color:${dc};">${on}</b><span>الآن</span></div>
+      </div>
+    </div>`;
+  }).join("")||"<div style='font-size:11px;color:var(--text3);'>لا بيانات</div>";
+
+  // دالة مساعدة لبناء صف حافلة مع بيانات المرشد
+  function evRow(e,showGuide){
+    const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+    const opNum=e.bus_operation_num||e.operation_num||"—";
+    const cid=String(e.operator_company_id||"");
+    const co=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+    let guideInfo="";
+    if(showGuide){
+      const gid=String(e.guide_id||"");
+      const fp0=DATA.fullPerf;
+      const g=fp0&&fp0.guides?fp0.guides.find(x=>x.guide_id===gid||x.guide_id===e.guide_identity):null;
+      guideInfo=g?`<span style="font-size:9px;color:var(--text3);margin-right:6px;"><i class="ti ti-user-check" style="font-size:9px;"></i> ${g.name}</span>`
+                 :`<span style="font-size:9px;color:var(--red);"><i class="ti ti-user-off" style="font-size:9px;"></i> بدون مرشد</span>`;
+    }
+    return`<div style="display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--border);font-size:10px;">
+      <span style="font-family:var(--mono);font-size:9px;color:var(--text3);min-width:40px;">${t}</span>
+      <span style="font-family:var(--mono);font-weight:600;min-width:35px;">${opNum}</span>
+      <span style="flex:1;font-size:9px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${co}</span>
+      <span style="font-size:9px;color:var(--text3);">مركز ${e.center_id||"—"}</span>
+      ${guideInfo}
+    </div>`;
+  }
+
+  // drill-down: الحافلات المُطلقة
+  const relEv0=ev.filter(e=>e.event_type==="garage_release").slice(-12).reverse();
+  document.getElementById("dr-launched-b").innerHTML=relEv0.length
+    ? relEv0.map(e=>evRow(e,false)).join("")
+    : "<div style='font-size:11px;color:var(--text3);'>لا بيانات</div>";
+
+  // drill-down: بدون مرشد (مع اسم المرشد المخصص إن وُجد)
+  const ngEv0=ev.filter(e=>e.guide_skipped==="TRUE");
+  document.getElementById("dr-noguide-b").innerHTML=ngEv0.length
+    ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:4px;">الرفادة</div>
+          ${ngEv0.filter(e=>String(e.garage_id)==="1").map(e=>evRow(e,true)).join("")||"<div style='font-size:10px;color:var(--text3);'>لا بيانات</div>"}</div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:4px;">رفاد</div>
+          ${ngEv0.filter(e=>String(e.garage_id)==="2").map(e=>evRow(e,true)).join("")||"<div style='font-size:10px;color:var(--text3);'>لا بيانات</div>"}</div>
+      </div>`
+    : "<div style='font-size:11px;color:var(--text3);'>لا بيانات</div>";
+
+  document.getElementById("alert-badge").textContent=noG;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// P1 — عمليات النقل
+// ══════════════════════════════════════════════════════════════════
+function buildP1(){
+  const ev=DATA.events,perf=DATA.perf;
+  const rel=ev.filter(e=>e.event_type==="garage_release").length;
+  const arr=ev.filter(e=>e.event_type==="center_arrival").length;
+  const onW=Math.max(0,rel-arr);
+  const late=ev.filter(e=>e.event_type==="center_arrival"&&parseFloat(e.delay_minutes)>0).length;
+  const noGuideP1=ev.filter(e=>e.guide_skipped==="TRUE").length;
+  const pilP1=ev.filter(e=>e.event_type==="center_arrival").reduce((s,e)=>s+(parseFloat(e.pilgrim_count_actual)||0),0);
+  document.getElementById("k1").innerHTML=`
+    <div class="kc kc-b"><div class="k-lbl">إطلاق</div><div class="k-val">${rel||"—"}</div><div class="k-sub">garage_release</div></div>
+    <div class="kc kc-g"><div class="k-lbl">وصول</div><div class="k-val">${arr||"—"}</div><div class="k-sub" style="color:var(--green);">${rel?Math.round(arr/rel*100):"—"}%</div></div>
+    <div class="kc kc-a"><div class="k-lbl">في الطريق</div><div class="k-val" style="color:var(--amber);">${onW}</div><div class="k-sub">لم تصل بعد</div></div>
+    <div class="kc kc-r" onclick="tdr('dr-late')" style="cursor:pointer;"><div class="k-lbl">متأخرة</div><div class="k-val" style="color:var(--red);">${late}</div><div class="k-sub">تجاوزت المدة</div></div>
+    <div class="kc kc-p"><div class="k-lbl">حجاج نُقلوا</div><div class="k-val" style="color:var(--purple);">${pilP1?pilP1.toLocaleString("ar-SA"):"—"}</div><div class="k-sub">إجمالي فعلي</div></div>
+  `;
+  buildCoDetail("rf-detail","rfrate",perf.filter(function(r){return r.company_name==="الرفادة";}),DATA.fullPerf);
+  buildCoDetail("rd-detail","rdrate",perf.filter(function(r){return r.company_name==="رفاد";}),DATA.fullPerf);
+
+  // الجراجات charts
+  const g1ev=ev.filter(e=>String(e.garage_id)==="1");
+  const g2ev=ev.filter(e=>String(e.garage_id)==="2");
+  buildGarageChart("c2",g1ev,"g1stats","1");
+  buildGarageChart("c3",g2ev,"g2stats","2");
+
+  // آخر إطلاقات مقسمة حسب الجراج
+  const cols=["timestamp","bus_operation_num","company_name","center_id"];
+  const rfLaunched=ev.filter(e=>e.event_type==="garage_release"&&String(e.garage_id)==="1").slice(-5).reverse();
+  const rdLaunched=ev.filter(e=>e.event_type==="garage_release"&&String(e.garage_id)==="2").slice(-5).reverse();
+  document.getElementById("rf-launched").innerHTML=buildDrillTbl(rfLaunched,cols);
+  document.getElementById("rd-launched").innerHTML=buildDrillTbl(rdLaunched,cols);
+
+  // بدون مرشد مقسمة حسب الشركة (garage_id)
+  const colsNG=["timestamp","bus_operation_num","company_name","center_id","pilgrim_count_actual"];
+  const rfNG=ev.filter(e=>e.guide_skipped==="TRUE"&&String(e.garage_id)==="1");
+  const rdNG=ev.filter(e=>e.guide_skipped==="TRUE"&&String(e.garage_id)==="2");
+  document.getElementById("rf-noguide-cnt").textContent=rfNG.length;
+  document.getElementById("rd-noguide-cnt").textContent=rdNG.length;
+  document.getElementById("rf-noguide").innerHTML=buildDrillTbl(rfNG.slice(-8).reverse(),colsNG);
+  document.getElementById("rd-noguide").innerHTML=buildDrillTbl(rdNG.slice(-8).reverse(),colsNG);
+
+  // drill-down: المتأخرة
+  const lateEv=ev.filter(e=>e.event_type==="center_arrival"&&parseFloat(e.delay_minutes)>0).slice(-10).reverse();
+  document.getElementById("dr-late-b").innerHTML=lateEv.length
+    ?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div><div style="font-size:10px;font-weight:700;color:var(--green);margin-bottom:4px;">الرفادة</div>
+          ${lateEv.filter(e=>String(e.garage_id)==="1").map(e=>{
+            const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+            const op=e.bus_operation_num||e.operation_num||"—";
+            const cid=String(e.operator_company_id||"");
+            const co=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+            return`<div style="font-size:9px;padding:3px 0;border-bottom:1px solid var(--border);">
+              <span style="font-family:var(--mono);font-weight:600;">${op}</span> <span style="color:var(--text3);">${co.substring(0,12)}</span><br>
+              <span style="color:var(--text3);">مركز ${e.center_id||"—"} · ${t}</span>
+              <span style="color:var(--amber);font-weight:600;margin-right:4px;">+${e.delay_minutes||0}د</span></div>`;
+          }).join("")||"<div style='font-size:9px;color:var(--text3);'>لا بيانات</div>"}</div>
+        <div><div style="font-size:10px;font-weight:700;color:var(--amber);margin-bottom:4px;">رفاد</div>
+          ${lateEv.filter(e=>String(e.garage_id)==="2").map(e=>{
+            const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+            const op=e.bus_operation_num||e.operation_num||"—";
+            const cid=String(e.operator_company_id||"");
+            const co=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+            return`<div style="font-size:9px;padding:3px 0;border-bottom:1px solid var(--border);">
+              <span style="font-family:var(--mono);font-weight:600;">${op}</span> <span style="color:var(--text3);">${co.substring(0,12)}</span><br>
+              <span style="color:var(--text3);">مركز ${e.center_id||"—"} · ${t}</span>
+              <span style="color:var(--amber);font-weight:600;margin-right:4px;">+${e.delay_minutes||0}د</span></div>`;
+          }).join("")||"<div style='font-size:9px;color:var(--text3);'>لا بيانات</div>"}</div>
+      </div>`
+    :"<div style='font-size:11px;color:var(--text3);'>لا يوجد تأخيرات</div>";
+  const coMap={};
+  ev.forEach(e=>{
+    if(!e.operator_company_id) return;
+    const cid=String(e.operator_company_id);
+    if(!coMap[cid]) coMap[cid]={rel:0,arr:0};
+    if(e.event_type==="garage_release") coMap[cid].rel++;
+    if(e.event_type==="center_arrival") coMap[cid].arr++;
+  });
+  // نسبة الإنجاز لكل شركة نقل
+  const coHTML=Object.entries(coMap).map(([cid,c])=>{
+    const p=c.rel>0?Math.round(c.arr/c.rel*100):0;
+    const col=p>=80?"var(--green)":p>=50?"var(--amber)":"var(--red)";
+    const name=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||("شركة "+cid);
+    return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);">
+      <span style="font-size:10px;color:var(--text2);min-width:90px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name}</span>
+      <div style="flex:1;"><div class="pb"><div class="pf" style="width:${p}%;background:${col};"></div></div></div>
+      <span style="font-size:11px;font-weight:600;color:${col};min-width:35px;text-align:left;">${p}%</span>
+      <span style="font-size:9px;color:var(--text3);">${c.rel} إطلاق · ${c.arr} وصول</span>
+    </div>`;
+  }).join("");
+  // أضف قسم شركات النقل قبل الأحداث الأخيرة
+  const coContainer=document.getElementById("transport-companies-box");
+  if(coContainer) coContainer.innerHTML=coHTML||"<div style='font-size:11px;color:var(--text3);'>لا بيانات</div>";
+
+  document.getElementById("recent-ev").innerHTML=`<table class="tbl">
+    <tr><th>الوقت</th><th>التشغيل</th><th>الشركة</th><th>النوع</th><th>المركز</th><th>الحجاج</th></tr>
+    ${ev.slice(-8).reverse().map(e=>{
+      const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+      const typ=e.event_type==="garage_release"?'<span class="tag tb">إطلاق</span>':e.guide_skipped==="TRUE"?'<span class="tag tr">بدون مرشد</span>':'<span class="tag tg">وصول</span>';
+      const opNum=e.bus_operation_num||e.operation_num||"—";
+      const cid=String(e.operator_company_id||"");
+      const coN=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+      return`<tr><td style="font-family:var(--mono);font-size:10px;">${t}</td><td style="font-family:var(--mono);">${opNum}</td><td style="font-size:9px;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${coN}</td><td>${typ}</td><td>${e.center_id||"—"}</td><td>${e.pilgrim_count_actual||"—"}</td></tr>`;
+    }).join("")}
+  </table>`;
+}
+
+function buildCoDetail(id,rateId,data,fp){
+  var centers = [];
+  if(fp && fp.centers) {
+    var coName = id.includes("rf") ? "الرفادة" : "رفاد";
+    centers = fp.centers.filter(function(c){
+      return coName==="الرفادة"
+        ? (c.company_name||"").indexOf("الرفادة")>=0
+        : (c.company_name||"").indexOf("رفاد")>=0&&(c.company_name||"").indexOf("الرفادة")<0;
+    });
+  }
+  if(!centers.length){
+    document.getElementById(id).innerHTML='<div style="font-size:11px;color:var(--text3);">لا بيانات</div>';
+    return;
+  }
+
+  var done  = centers.reduce(function(s,c){return s+(c.arrived||0);},0);
+  var total = centers.reduce(function(s,c){return s+(c.target_trips||0);},0);
+  var p = total>0?Math.round(done/total*100):0;
+  var el=document.getElementById(rateId);
+  el.textContent=p+"% إنجاز"; el.className="tag "+(p>=80?"tg":p>=50?"tw":"tr");
+
+  document.getElementById(id).innerHTML=centers.map(function(c){
+    var pp  = c.target_trips>0 ? Math.round((c.arrived||0)/c.target_trips*100) : 0;
+    var col = pp>=80?"var(--green)":pp>=50?"var(--amber)":"var(--red)";
+    // الحافلات: المستهدف = required_buses، المستلمة = released
+    var busT = c.required_buses||0;
+    var busD = c.released||0;
+    var busR = Math.max(0,busT-busD);
+    var busP = busT>0?Math.round(busD/busT*100):0;
+    var trR  = Math.max(0,(c.target_trips||0)-(c.arrived||0));
+    return '<div class="pr" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">'
+      // اسم المركز + نسبة الإنجاز
+      +'<div class="pl" style="margin-bottom:3px;"><span style="font-weight:600;font-size:11px;">'+c.center_name+'</span>'
+      +'<span class="tag '+(pp>=80?"tg":pp>=50?"tw":"tr")+'" style="font-size:9px;">'+pp+'%</span></div>'
+      +'<div class="pb" style="height:4px;margin-bottom:6px;"><div class="pf" style="width:'+Math.min(pp,100)+'%;background:'+col+';height:4px;"></div></div>'
+      // الحافلات
+      +'<div style="font-size:8px;color:var(--text3);margin-bottom:2px;font-weight:600;">الحافلات</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;margin-bottom:5px;">'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;">'+busT+'</div><div style="font-size:7px;color:var(--text3);">مستهدف</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--green);">'+busD+'</div><div style="font-size:7px;color:var(--text3);">مستلم</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--amber);">'+busR+'</div><div style="font-size:7px;color:var(--text3);">متبقي</div></div>'
+      +'</div>'
+      // الردود
+      +'<div style="font-size:8px;color:var(--text3);margin-bottom:2px;font-weight:600;">الردود</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;">'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;">'+(c.target_trips||0)+'</div><div style="font-size:7px;color:var(--text3);">مستهدف</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:'+col+';">'+(c.arrived||0)+'</div><div style="font-size:7px;color:var(--text3);">منجز</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--amber);">'+trR+'</div><div style="font-size:7px;color:var(--text3);">متبقي</div></div>'
+      +'</div>'
+      +(c.no_guide_trips>0?'<div style="margin-top:3px;font-size:8px;color:var(--red);">'+c.no_guide_trips+' رد بدون مرشد</div>':'')
+      +'</div>';
+  }).join("");
+}
+
+function buildGarageChart(id,ev,statsId,garageId){
+  if(charts[id]) charts[id].destroy();
+  var relEv = ev.filter(function(e){return String(e.event_type||"").trim()==="garage_release";});
+  var rel = relEv.length;
+  var arr = ev.filter(function(e){return String(e.event_type||"").trim()==="center_arrival";}).length;
+  charts[id]=new Chart(document.getElementById(id),{
+    type:"doughnut",
+    data:{labels:["أُطلق","وصل"],datasets:[{data:[rel,arr],backgroundColor:["#0F6E56","#1a5fa8"],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",plugins:{legend:{display:false}}}
+  });
+
+  // إحصائيات من fullPerf — الحافلات المستهدفة لكل شركة في هذا الجراج
+  var fp = DATA.fullPerf;
+  var gCenters = fp&&fp.centers ? fp.centers.filter(function(c){return String(c.garage_id)===String(garageId);}) : [];
+  // إجمالي الحافلات المستهدفة = مجموع required_buses لكل مركز
+  var busT   = gCenters.reduce(function(s,c){return s+(c.required_buses||0);},0);
+  var tripsT = gCenters.reduce(function(s,c){return s+(c.target_trips||0);},0);
+  var centersCount = gCenters.length;
+
+  // نافذة التسليم
+  var delivHours = PHASE && PHASE.bus_delivery_time ? parseFloat(PHASE.bus_delivery_time) : 0;
+  var startTime  = PHASE && PHASE.miladi_start_datetime ? new Date(PHASE.miladi_start_datetime) : null;
+  var deadlineStr = "—";
+  var isLate = false;
+  var isWithinWindow = false;
+  if(startTime && delivHours>0){
+    var deadline = new Date(startTime.getTime() + delivHours*3600000);
+    var now = new Date();
+    deadlineStr = deadline.toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
+    isWithinWindow = now < deadline;
+    isLate = !isWithinWindow && rel < busT;
+  }
+
+  // حالة الجراج
+  var statusHTML = "";
+  if(isLate){
+    statusHTML = '<div style="background:var(--red2);border:1px solid var(--red3);border-radius:4px;padding:5px;margin-bottom:6px;text-align:center;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--red);">⚠️ تأخر في التسليم</span>'
+      +'<div style="font-size:9px;color:var(--red);margin-top:2px;">أُطلق '+rel+' من '+busT+' — انتهت نافذة التسليم '+deadlineStr+'</div>'
+      +'</div>';
+  } else if(isWithinWindow && rel<busT){
+    var remaining = Math.max(0, busT-rel);
+    statusHTML = '<div style="background:var(--amber2);border:1px solid var(--amber3);border-radius:4px;padding:5px;margin-bottom:6px;text-align:center;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--amber);">🕐 في نافذة التسليم</span>'
+      +'<div style="font-size:9px;color:var(--amber);margin-top:2px;">متبقي '+remaining+' حافلة · الموعد '+deadlineStr+'</div>'
+      +'</div>';
+  } else if(rel>=busT){
+    statusHTML = '<div style="background:var(--green2);border:1px solid var(--green3);border-radius:4px;padding:5px;margin-bottom:6px;text-align:center;">'
+      +'<span style="font-size:10px;font-weight:700;color:var(--green);">✅ اكتمل التسليم</span>'
+      +'</div>';
+  }
+
+  // شركات النقل — باسمها الحقيقي
+  function coName(id){ return (window.CO_NAMES_MAP&&window.CO_NAMES_MAP[String(id)]) || (id&&id!=="غير محدد"?"شركة "+id:"غير محدد"); }
+  var coMap={};
+  relEv.forEach(function(e){
+    var cid=String(e.operator_company_id||"غير محدد");
+    coMap[cid]=(coMap[cid]||0)+1;
+  });
+  var coHTML='<table style="width:100%;border-collapse:collapse;">'
+    +'<tr style="font-size:8px;color:var(--text3);border-bottom:1px solid var(--border);">'
+    +'<th style="text-align:right;padding:3px 4px;font-weight:600;">الشركة</th>'
+    +'<th style="text-align:center;padding:3px 4px;font-weight:600;width:50px;">حافلة</th>'
+    +'<th style="text-align:center;padding:3px 4px;font-weight:600;width:35px;">%</th>'
+    +'</tr>'
+    +Object.entries(coMap).map(function(entry){
+      var cid=entry[0], cnt=entry[1];
+      var busP = busT>0?Math.round(cnt/busT*100):0;
+      var name = coName(cid);
+      return '<tr style="font-size:9px;border-bottom:1px solid var(--border);">'
+        +'<td style="padding:3px 4px;color:var(--text2);">'+name+'</td>'
+        +'<td style="padding:3px 4px;text-align:center;font-weight:600;color:var(--green);">'+cnt+'</td>'
+        +'<td style="padding:3px 4px;text-align:center;color:var(--text3);">'+busP+'%</td>'
+        +'</tr>';
+    }).join("")
+    +'</table>'
+    || '<div style="font-size:9px;color:var(--text3);">لا بيانات</div>';
+
+  document.getElementById(statsId).innerHTML=
+    statusHTML
+    +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;">'
+      +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:4px;">'
+        +'<div style="font-weight:700;font-size:12px;">'+busT+'</div><div style="font-size:8px;color:var(--text3);">مستهدف</div></div>'
+      +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:4px;">'
+        +'<div style="font-weight:700;font-size:12px;color:var(--green);">'+rel+'</div><div style="font-size:8px;color:var(--text3);">أُطلق</div></div>'
+      +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:4px;">'
+        +'<div style="font-weight:700;font-size:12px;color:var(--amber);">'+Math.max(0,busT-rel)+'</div><div style="font-size:8px;color:var(--text3);">متبقي</div></div>'
+    +'</div>'
+    +'<div style="font-size:8px;color:var(--text3);margin-bottom:4px;">'
+      +'<b>'+centersCount+'</b> مركز · نافذة التسليم: <b style="color:var(--text);">'+delivHours+' ساعة</b>'
+      +' · الموعد النهائي: <b style="color:var(--text);">'+deadlineStr+'</b>'
+      +' · الردود المستهدفة: <b>'+tripsT+'</b>'
+    +'</div>'
+    +'<div style="font-size:8px;font-weight:600;color:var(--text3);margin-bottom:3px;">توزيع شركات النقل</div>'
+    +coHTML;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// P2 — ذكاء الطريق
+// ══════════════════════════════════════════════════════════════════
+function buildP2(){
+  const rs=DATA.roadSum,rc=DATA.roadCong;
+  const tIn=rs.reduce((s,r)=>s+(parseFloat(r.total_in)||0),0);
+  const tOut=rs.reduce((s,r)=>s+(parseFloat(r.total_out)||0),0);
+  const onRd=rs.reduce((s,r)=>s+(parseFloat(r.on_road_now)||0),0);
+  const actR=rs.filter(r=>parseFloat(r.on_road_now)>0).length;
+  document.getElementById("k2").innerHTML=`
+    <div class="kc kc-g"><div class="k-lbl">إجمالي داخل</div><div class="k-val">${tIn||"—"}</div><div class="k-sub">جميع المداخل</div></div>
+    <div class="kc kc-b"><div class="k-lbl">إجمالي خارج</div><div class="k-val">${tOut||"—"}</div><div class="k-sub">جميع المخارج</div></div>
+    <div class="kc kc-a"><div class="k-lbl">على الطريق الآن</div><div class="k-val" style="color:var(--amber);">${onRd||"—"}</div><div class="k-sub">داخل − خارج</div></div>
+    <div class="kc kc-p"><div class="k-lbl">طرق نشطة</div><div class="k-val">${actR}</div><div class="k-sub">من ${rs.length}</div></div>
+  `;
+  document.getElementById("road-sum-list").innerHTML=rs.map(r=>{
+    const on=parseFloat(r.on_road_now)||0;
+    const tin=parseFloat(r.total_in)||0;
+    const tout=parseFloat(r.total_out)||0;
+    const dwell=r.avg_dwell_min||"—";
+    const rate=r.avg_rate_per_min||"—";
+    const dc=on>200?"var(--red)":on>100?"var(--amber)":on>0?"var(--green)":"var(--text3)";
+    const cls=on>200?"ri-r":on>100?"ri-a":on>0?"ri-g":"ri-n";
+    const onPct=tin>0?Math.round(on/tin*100):0;
+    return`<div class="ri ${cls}">
+      <div class="rdot" style="background:${dc};box-shadow:0 0 0 3px ${on>0?"rgba(15,110,86,.12)":"transparent"};"></div>
+      <div style="flex:1;">
+        <div class="rname" style="color:${dc};margin-bottom:2px;">${r.road_name||"—"}</div>
+        <div style="display:flex;gap:10px;font-size:9px;color:var(--text3);">
+          <span>⏱ ${dwell}</span>
+          <span>📊 ${rate}</span>
+          ${on>0?`<span style="color:${dc};font-weight:600;">${onPct}% على الطريق</span>`:""}
+        </div>
+      </div>
+      <div class="rnums">
+        <div class="rnum"><b style="color:var(--green);">${tin}</b><span>↓ داخل</span></div>
+        <div class="rnum"><b style="color:var(--blue);">${tout}</b><span>↑ خارج</span></div>
+        <div class="rnum"><b style="color:${dc};font-size:16px;">${on}</b><span>الآن</span></div>
+      </div>
+    </div>`;
+  }).join("");
+  document.getElementById("road-cong-list").innerHTML=rc.map(r=>{
+    const on=parseFloat(r.current_on_road)||0;
+    const isIn=r.location_type==="in";
+    return`<div class="ri ${on>0?"ri-g":"ri-n"}" style="padding:6px 8px;">
+      <div class="rdot" style="background:${isIn?"var(--green)":"var(--blue)"};"></div>
+      <div style="flex:1;"><div style="font-size:11px;font-weight:500;">${r.location_name||"—"}</div><div style="font-size:9px;color:var(--text3);">${r.last_updated||"—"}</div></div>
+      <div style="font-size:12px;font-weight:700;color:${isIn?"var(--green)":"var(--blue)"};">${isIn?"↓ "+r.total_in:"↑ "+r.total_out}</div>
+    </div>`;
+  }).join("");
+
+  if(charts.c4) charts.c4.destroy();
+  charts.c4=new Chart(document.getElementById("c4"),{
+    type:"bar",
+    data:{
+      labels:rc.map(r=>(r.location_name||"").substring(0,10)),
+      datasets:[
+        {label:"داخل",data:rc.map(r=>parseFloat(r.total_in)||0),backgroundColor:"rgba(15,110,86,.75)",borderRadius:4,barPercentage:.5},
+        {label:"خارج",data:rc.map(r=>parseFloat(r.total_out)||0),backgroundColor:"rgba(26,95,168,.65)",borderRadius:4,barPercentage:.5}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:"#8a97a8",font:{size:9}},grid:{display:false}},
+      y:{ticks:{color:"#8a97a8",font:{size:9}},grid:{color:"rgba(0,0,0,.05)"}}
+    }}
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════
+// P3 — مراكز الخدمة
+// ══════════════════════════════════════════════════════════════════
+function _centerFilterBtns(containerId, onclickFn){
+  var filters=[
+    ['all','الكل',''],['done','مكتمل','✅'],['progress','جاري','🔄'],['none','لم يبدأ','⏳']
+  ];
+  var el=document.getElementById(containerId);
+  if(!el)return;
+  el.innerHTML=filters.map(function(x){
+    var active=x[0]==='all'?'tg':'tb';
+    var icon=x[2]?x[2]+'<br>':'';
+    return '<button class="tag '+active+'" style="cursor:pointer;border:none;font-family:var(--font);padding:3px 6px;font-size:10px;text-align:center;line-height:1.4;" onclick="'+onclickFn+'(\''+x[0]+'\',this)">'+icon+'<span style="font-size:7px;">'+x[1]+'</span></button>';
+  }).join('');
+}
+function _applyCenterFilter(centers, f){
+  if(f==='done')     return centers.filter(function(c){return c.completion_pct>=100;});
+  if(f==='progress') return centers.filter(function(c){return c.completion_pct>0&&c.completion_pct<100;});
+  if(f==='none')     return centers.filter(function(c){return (c.arrived||0)===0;});
+  return centers;
+}
+function _setActiveCenter(containerId, btn){
+  document.querySelectorAll('#'+containerId+' button').forEach(function(b){b.className='tag tb';b.style.opacity='.6';});
+  if(btn){btn.className='tag tg';btn.style.opacity='1';}
+}
+function filterCenterRf(f,btn){window._rfCenterFilter=f;_setActiveCenter('centers-filter-rf',btn);_renderCenters();}
+function filterCenterRd(f,btn){window._rdCenterFilter=f;_setActiveCenter('centers-filter-rd',btn);_renderCenters();}
+function setCenterFilter(f){window._centerFilter=f;buildP3();}
+
+function _renderCenters(){
+  var rfAll=window._rfCentersAll||[];
+  var rdAll=window._rdCentersAll||[];
+  var cardFn=window._centerCardFn;
+  if(!cardFn)return;
+  var empty='<div style="font-size:11px;color:var(--text3);padding:8px;">لا توجد مراكز</div>';
+  var rfF=_applyCenterFilter(rfAll,window._rfCenterFilter||'all');
+  var rdF=_applyCenterFilter(rdAll,window._rdCenterFilter||'all');
+  var rfEl=document.getElementById('centers-rf');
+  var rdEl=document.getElementById('centers-rd');
+  if(rfEl){document.getElementById('rf-center-count').textContent='('+rfF.length+')';rfEl.innerHTML=rfF.length?rfF.map(cardFn).join(''):empty;}
+  if(rdEl){document.getElementById('rd-center-count').textContent='('+rdF.length+')';rdEl.innerHTML=rdF.length?rdF.map(cardFn).join(''):empty;}
+}
+
+function buildP3(){
+  var fp = DATA.fullPerf;
+  var ev = DATA.events || [];
+  var pil = ev.filter(function(e){return String(e.event_type||"").trim()==="center_arrival";})
+              .reduce(function(s,e){return s+(parseFloat(e.pilgrim_count_actual)||0);},0);
+
+  var centers = fp && fp.centers ? fp.centers : [];
+  var done80  = centers.filter(function(c){return c.completion_pct>=80;}).length;
+  var totalPilgrims = centers.reduce(function(s,c){return s+(c.pilgrims_actual||0);},0)||pil;
+  var notStarted = centers.filter(function(c){return (c.arrived||0)===0&&(c.target_trips||0)>0;}).length;
+
+  document.getElementById("k3").innerHTML=
+    '<div class="kc kc-b"><div class="k-lbl">إجمالي المراكز</div><div class="k-val">'+(centers.length||"—")+'</div><div class="k-sub">مركز خدمة</div></div>'
+   +'<div class="kc kc-g"><div class="k-lbl">أنجزت 80%+</div><div class="k-val" style="color:var(--green);">'+done80+'</div><div class="k-sub">من الهدف</div></div>'
+   +'<div class="kc kc-r"><div class="k-lbl">لم تبدأ</div><div class="k-val" style="color:var(--red);">'+notStarted+'</div><div class="k-sub">0 ردود</div></div>'
+   +'<div class="kc kc-b"><div class="k-lbl">حجاج نُقلوا</div><div class="k-val">'+(totalPilgrims?totalPilgrims.toLocaleString("ar-SA"):"—")+'</div><div class="k-sub">فعلي</div></div>';
+
+  // بناء الفلاتر
+  _centerFilterBtns('centers-filter-rf','filterCenterRf');
+  _centerFilterBtns('centers-filter-rd','filterCenterRd');
+
+  var rfCenters = centers.filter(function(c){return parseInt(c.garage_id||0)===1||c.garage_id==="1";});
+  var rdCenters = centers.filter(function(c){return parseInt(c.garage_id||0)===2||c.garage_id==="2";});
+  var other     = centers.filter(function(c){return rfCenters.indexOf(c)<0&&rdCenters.indexOf(c)<0;});
+  var rdAll     = rdCenters.concat(other);
+
+  // حفظ للاستخدام في _renderCenters
+  window._rfCentersAll = rfCenters;
+  window._rdCentersAll = rdAll;
+  window._centerCardFn = centerCard;
+
+  _renderCenters();
+
+  function centerCard(c){
+    var p=c.completion_pct||0;
+    var col=p>=100?"var(--green)":p>=80?"var(--green)":p>=50?"var(--amber)":"var(--red)";
+    var tag=p>=80?"tg":p>=50?"tw":"tr";
+    var pilT=c.pilgrim_count||0;
+    var pilA=c.pilgrims_actual||0;
+    var pilR=Math.max(0,pilT-pilA);
+    var tripsR=Math.max(0,(c.target_trips||0)-(c.arrived||0));
+    var onTime=c.on_time_trips||0;
+    var late=c.late_trips||0;
+    return '<div class="cbox" style="border-top:3px solid '+col+';">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+        +'<div><span style="font-size:12px;font-weight:600;">'+c.center_name+'</span>'
+        +'<div style="font-size:9px;color:var(--text3);margin-top:1px;">'+c.required_buses+' حافلة × '+c.required_cycles+' دورات = '+c.target_trips+' رد</div></div>'
+        +'<span class="tag '+tag+'">'+p+'%</span></div>'
+      +'<div class="pb" style="margin-bottom:6px;height:5px;"><div class="pf" style="width:'+Math.min(p,100)+'%;background:'+col+';height:5px;border-radius:5px;transition:width .5s;"></div></div>'
+      +'<div style="font-size:9px;color:var(--text3);margin-bottom:3px;font-weight:600;">الردود</div>'
+      +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:6px;">'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;">'+(c.target_trips||0)+'</div><div style="font-size:7px;color:var(--text3);">مستهدف</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:'+col+';">'+(c.arrived||0)+'</div><div style="font-size:7px;color:var(--text3);">منجز</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--amber);">'+tripsR+'</div><div style="font-size:7px;color:var(--text3);">متبقي</div></div>'
+        +'<div style="text-align:center;background:'+(late>0?"var(--red2)":"var(--green2)")+';border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:'+(late>0?"var(--red)":"var(--green)")+';">'+(late>0?late+" ⚠️":"✅")+'</div>'
+          +'<div style="font-size:7px;color:var(--text3);">'+(late>0?"متأخر":"وقت")+'</div></div>'
+      +'</div>'
+      +'<div style="font-size:9px;color:var(--text3);margin-bottom:3px;font-weight:600;">الحجاج</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;">'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;">'+pilT.toLocaleString("ar-SA")+'</div><div style="font-size:7px;color:var(--text3);">مستهدف</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--green);">'+pilA.toLocaleString("ar-SA")+'</div><div style="font-size:7px;color:var(--text3);">تم</div></div>'
+        +'<div style="text-align:center;background:var(--bg3);border-radius:4px;padding:3px;">'
+          +'<div style="font-weight:700;font-size:11px;color:var(--amber);">'+pilR.toLocaleString("ar-SA")+'</div><div style="font-size:7px;color:var(--text3);">متبقي</div></div>'
+      +'</div>'
+      +(c.no_guide_trips>0?'<div style="margin-top:5px;font-size:9px;color:var(--red);"><i class="ti ti-user-off" style="font-size:9px;"></i> '+c.no_guide_trips+' رد بدون مرشد</div>':'')
+      +'</div>';
+  }
+
+  var empty='<div style="font-size:11px;color:var(--text3);padding:8px;">لا توجد مراكز</div>';
+  if(charts.c5) charts.c5.destroy();
+  var cChart=centers.filter(function(c){return c.target_trips>0;});
+  charts.c5=new Chart(document.getElementById("c5"),{
+    type:"bar",
+    data:{
+      labels:cChart.map(function(c){return (c.center_name||"").substring(0,6);}),
+      datasets:[{
+        data:cChart.map(function(c){return c.completion_pct||0;}),
+        backgroundColor:cChart.map(function(c){
+          var p=c.completion_pct||0;
+          return p>=80?"rgba(15,110,86,.75)":p>=50?"rgba(196,125,10,.75)":"rgba(192,57,43,.65)";
+        }),
+        borderRadius:5
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:"#8a97a8",font:{size:9}},grid:{display:false}},
+      y:{max:100,ticks:{color:"#8a97a8",font:{size:9},callback:function(v){return v+"%";}},grid:{color:"rgba(0,0,0,.05)"}}
+    }}
+  });
+}
+
+function setCenterFilter(f){
+  window._centerFilter=f;
+  buildP3();
+}
+
+function _renderGuides(){
+  const rfG  = window._rfGuides||[];
+  const rdG  = window._rdGuides||[];
+  const fn   = window._guideCardFn;
+  const thr  = window._guideSilentThr||3;
+  if(!fn) return;
+  const empty= `<div style="font-size:11px;color:var(--text3);padding:8px 0;text-align:center;">لا يوجد مرشدون</div>`;
+  const rfF  = _applyGuideFilter(rfG, window._rfFilter||'all', thr);
+  const rdF  = _applyGuideFilter(rdG, window._rdFilter||'all', thr);
+  document.getElementById("rf-guide-count").textContent = rfF.length+" مرشد";
+  document.getElementById("rd-guide-count").textContent = rdF.length+" مرشد";
+  document.getElementById("guides-rf").innerHTML = rfF.length ? rfF.map(fn).join("") : empty;
+  document.getElementById("guides-rd").innerHTML = rdF.length ? rdF.map(fn).join("") : empty;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// P4 — المرشدون
+// ══════════════════════════════════════════════════════════════════
+function buildP4(){
+  const fp     = DATA.fullPerf;
+  const guides = fp && fp.guides ? fp.guides : [];
+  const noG    = DATA.events ? DATA.events.filter(e=>e.guide_skipped==="TRUE").length : 0;
+  const done   = guides.filter(g=>g.completion_pct>=100).length;
+  const late   = guides.filter(g=>g.late>0).length;
+  const notYet = guides.filter(g=>g.trips===0).length;
+
+  // نسبة إنجاز كل شركة
+  const rfAll  = guides.filter(g=>String(g.hospitality_company_id)==="1");
+  const rdAll  = guides.filter(g=>String(g.hospitality_company_id)==="2");
+  const rfPct  = rfAll.length ? Math.round(rfAll.reduce((s,g)=>s+g.completion_pct,0)/rfAll.length) : 0;
+  const rdPct  = rdAll.length ? Math.round(rdAll.reduce((s,g)=>s+g.completion_pct,0)/rdAll.length) : 0;
+
+  // تنبيه الصمت: مرشد لم يسجل رد منذ 3+ ساعات والمرحلة نشطة
+  const SILENT_THRESHOLD = 3;
+  const silent = guides.filter(g=>g.silent_hours!==null&&g.silent_hours>=SILENT_THRESHOLD&&g.completion_pct<100).length;
+
+  document.getElementById("k4").innerHTML=`
+    <div class="kc kc-b"><div class="k-lbl">المرشدون</div><div class="k-val">${guides.length||"—"}</div><div class="k-sub">إجمالي</div></div>
+    <div class="kc kc-g"><div class="k-lbl">أكملوا</div><div class="k-val" style="color:var(--green);">${done}</div><div class="k-sub">100% إنجاز</div></div>
+    <div class="kc kc-r"><div class="k-lbl">لم يبدأوا</div><div class="k-val" style="color:var(--red);">${notYet}</div><div class="k-sub">0 ردود</div></div>
+    <div class="kc kc-r"><div class="k-lbl">صامتون</div><div class="k-val" style="color:var(--amber);">${silent}</div><div class="k-sub">${SILENT_THRESHOLD}+ ساعات</div></div>
+  `;
+
+  // مقارنة الشركتين
+  const cmpEl = document.getElementById("guide-stats");
+  if(cmpEl) cmpEl.innerHTML=`
+    <div class="mr"><span style="color:var(--text3);">الرفادة (${rfAll.length} مرشد)</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="background:var(--bg3);border-radius:4px;height:6px;width:80px;overflow:hidden;">
+          <div style="background:var(--green);height:6px;width:${rfPct}%;border-radius:4px;"></div></div>
+        <span style="font-weight:600;color:var(--green);">${rfPct}%</span></div></div>
+    <div class="mr"><span style="color:var(--text3);">رفاد (${rdAll.length} مرشد)</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <div style="background:var(--bg3);border-radius:4px;height:6px;width:80px;overflow:hidden;">
+          <div style="background:var(--amber);height:6px;width:${rdPct}%;border-radius:4px;"></div></div>
+        <span style="font-weight:600;color:var(--amber);">${rdPct}%</span></div></div>
+    <div class="mr"><span style="color:var(--text3);">متأخرون</span><span style="font-weight:600;color:var(--amber);">${late}</span></div>
+    <div class="mr"><span style="color:var(--text3);">بدون مرشد</span><span style="font-weight:600;color:var(--red);">${noG}</span></div>
+  `;
+
+  // فلتر
+  // فلترة مستقلة لكل شركة
+  const rfGuides = guides.filter(g=>String(g.hospitality_company_id)==="1");
+  const rdGuides = guides.filter(g=>String(g.hospitality_company_id)!=="1");
+
+  // حفظ للاستخدام في _renderGuides
+  window._rfGuides = rfGuides;
+  window._rdGuides = rdGuides;
+  window._guideCardFn = guideCard;
+  window._guideSilentThr = SILENT_THRESHOLD;
+
+  _renderGuides();
+
+  function guideCard(g){
+    const pct      = g.completion_pct||0;
+    const isDone   = pct>=100;
+    const isLate   = (g.late||0)>0;
+    const isSilent = (g.silent_hours||0)>=SILENT_THRESHOLD && !isDone;
+    const isActive = !isDone && !isLate && !isSilent && (g.trips||0)>0;
+
+    // رمز الحالة
+    const statusIcon = isDone   ? "✅"
+                     : isSilent ? "🔕"
+                     : isLate   ? "⚠️"
+                     : isActive ? "🔄"
+                     : "⏳";
+
+    const col = isDone?"var(--green)":isLate?"var(--red)":isSilent?"var(--amber)":isActive?"var(--blue)":"var(--text3)";
+    const bg  = isDone?"var(--green2)":isLate?"var(--red2)":isSilent?"var(--amber2)":isActive?"#e8f0fb":"var(--bg3)";
+    const tagCls = isDone?"tg":isLate?"tr":isSilent?"tw":"tb";
+    const init = (g.name||"").substring(0,2)||"؟";
+    const border = isDone   ? "border:1.5px solid var(--green);border-radius:8px;padding:8px;"
+                 : isSilent ? "border:1.5px solid var(--amber);border-radius:8px;padding:8px;"
+                 : isLate   ? "border:1.5px solid var(--red);border-radius:8px;padding:8px;"
+                 : "padding:6px 0;border-bottom:1px solid var(--border);";
+
+    // آخر رد
+    const lastStr = g.last_trip_time
+      ? new Date(g.last_trip_time).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"})
+      : "—";
+    const avgStr = g.avg_interval_minutes ? g.avg_interval_minutes+" د" : "—";
+
+    // جهات الاتصال — مشرف يمين | أخصائي النقل يسار
+    const hasContacts = g.supervisor_name || g.trans_specialist_name;
+    const contactsHtml = hasContacts ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px;">
+      <div style="background:var(--bg3);border-radius:4px;padding:3px 5px;">
+        <div style="font-size:7px;color:var(--text3);margin-bottom:1px;">مشرف</div>
+        <div style="font-size:8px;font-weight:600;color:var(--text2);">${g.supervisor_name||"—"}</div>
+        ${g.supervisor_phone?`<a href="tel:${g.supervisor_phone}" style="font-size:8px;color:var(--blue);text-decoration:none;"><i class="ti ti-phone" style="font-size:8px;"></i> ${g.supervisor_phone}</a>`:""}
+      </div>
+      <div style="background:var(--bg3);border-radius:4px;padding:3px 5px;">
+        <div style="font-size:7px;color:var(--text3);margin-bottom:1px;">أخصائي النقل</div>
+        <div style="font-size:8px;font-weight:600;color:var(--text2);">${g.trans_specialist_name||"—"}</div>
+        ${g.trans_specialist_phone?`<a href="tel:${g.trans_specialist_phone}" style="font-size:8px;color:var(--blue);text-decoration:none;"><i class="ti ti-phone" style="font-size:8px;"></i> ${g.trans_specialist_phone}</a>`:""}
+      </div>
+    </div>` : "";
+
+    return `<div style="${border}margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+        <div style="background:${bg};color:${col};width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">${statusIcon}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${g.name||"—"}</div>
+          <div style="font-size:9px;color:var(--text3);">${g.center_name||"—"}</div>
+          ${g.mobile?`<a href="tel:${g.mobile}" style="font-size:9px;color:var(--blue);text-decoration:none;"><i class="ti ti-phone" style="font-size:8px;"></i> ${g.mobile}</a>`:""}
+        </div>
+        <span class="tag ${tagCls}" style="font-size:9px;">${pct}%</span>
+      </div>
+      <div class="pb" style="height:3px;margin-bottom:4px;"><div class="pf" style="width:${Math.min(pct,100)}%;background:${col};height:3px;border-radius:3px;transition:width .5s;"></div></div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-bottom:4px;">
+        <div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px 1px;">
+          <div style="font-weight:700;font-size:11px;">${g.target_trips||0}</div><div style="font-size:7px;color:var(--text3);">مستهدف</div></div>
+        <div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px 1px;">
+          <div style="font-weight:700;font-size:11px;color:${col};">${g.trips||0}</div><div style="font-size:7px;color:var(--text3);">منجز</div></div>
+        <div style="text-align:center;background:var(--bg3);border-radius:3px;padding:3px 1px;">
+          <div style="font-weight:700;font-size:11px;color:var(--amber);">${g.remaining||0}</div><div style="font-size:7px;color:var(--text3);">متبقي</div></div>
+        <div style="text-align:center;background:${isLate?"var(--red2)":isDone?"var(--green2)":"var(--bg3)"};border-radius:3px;padding:3px 1px;">
+          <div style="font-size:11px;">${isDone?"✅":isLate?"⚠️"+g.late:isSilent?"🔕":"—"}</div>
+          <div style="font-size:7px;color:var(--text3);">${isLate?"متأخر":isDone?"وقت":isSilent?"صامت":"—"}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:4px;">
+        <div style="background:var(--bg3);border-radius:3px;padding:2px 4px;font-size:8px;color:var(--text3);">
+          <i class="ti ti-clock" style="font-size:8px;"></i> آخر رد: <b style="color:var(--text1);">${lastStr}</b></div>
+        <div style="background:var(--bg3);border-radius:3px;padding:2px 4px;font-size:8px;color:var(--text3);">
+          <i class="ti ti-refresh" style="font-size:8px;"></i> متوسط: <b style="color:var(--text1);">${avgStr}</b></div>
+      </div>
+      ${contactsHtml}
+    </div>`;
+  }
+
+  const empty = `<div style="font-size:11px;color:var(--text3);padding:8px 0;text-align:center;">لا يوجد مرشدون</div>`;
+
+  // رسم دائري
+  const doneN    = guides.filter(g=>g.completion_pct>=100).length;
+  const partial  = guides.filter(g=>g.completion_pct>0&&g.completion_pct<100).length;
+  const notStart = guides.filter(g=>g.completion_pct===0).length;
+  if(charts.c6) charts.c6.destroy();
+  charts.c6 = new Chart(document.getElementById("c6"),{
+    type:"doughnut",
+    data:{labels:["مكتمل","جاري","لم يبدأ"],datasets:[{data:[doneN,partial,notStart],backgroundColor:["#0F6E56","#FAC775","#c0392b"],borderWidth:0,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:"65%",plugins:{legend:{display:false}}}
+  });
+  document.getElementById("g-legend").innerHTML=`
+    <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#0F6E56;display:inline-block;"></span>مكتمل ${doneN}</span>
+    <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#FAC775;display:inline-block;"></span>جاري ${partial}</span>
+    <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;border-radius:2px;background:#c0392b;display:inline-block;"></span>لم يبدأ ${notStart}</span>
+  `;
+
+  // drill-down: الصامتون + لم يبدأوا
+  const silentAll=guides.filter(g=>(g.silent_hours||0)>=SILENT_THRESHOLD&&g.completion_pct<100);
+  const notStartedAll=guides.filter(g=>(g.trips||0)===0);
+  const drSilentList=[...silentAll,...notStartedAll.filter(g=>!silentAll.includes(g))];
+  document.getElementById("dr-silent-b").innerHTML=drSilentList.length
+    ?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        ${[["الرفادة","1","var(--green)"],["رفاد","0","var(--amber)"]].map(([label,id,col])=>`
+        <div>
+          <div style="font-size:10px;font-weight:700;color:${col};margin-bottom:5px;">${label}</div>
+          ${drSilentList.filter(g=>id==="1"?String(g.hospitality_company_id)==="1":String(g.hospitality_company_id)!=="1").map(g=>`
+            <div style="padding:5px 0;border-bottom:1px solid var(--border);">
+              <div style="font-size:10px;font-weight:600;">${g.trips===0?"⏳":"🔕"} ${g.name||"—"}</div>
+              <div style="font-size:9px;color:var(--text3);">${g.center_name||"—"} · ${g.trips}/${g.target_trips} ردود
+                ${(g.silent_hours||0)>=SILENT_THRESHOLD?`<span style="color:var(--amber);"> · صامت ${Math.round(g.silent_hours||0)}س</span>`:""}
+              </div>
+              ${g.supervisor_name?`<div style="font-size:8px;margin-top:2px;"><i class="ti ti-user-shield" style="font-size:8px;color:var(--blue);"></i> ${g.supervisor_name} ${g.supervisor_phone?`<a href="tel:${g.supervisor_phone}" style="color:var(--blue);font-size:8px;">📞${g.supervisor_phone}</a>`:""}</div>`:""}
+              ${g.trans_specialist_name?`<div style="font-size:8px;color:var(--amber);"><i class="ti ti-truck" style="font-size:8px;"></i> ${g.trans_specialist_name}</div>`:""}
+            </div>`).join("")||`<div style="font-size:9px;color:var(--text3);">لا بيانات</div>`}
+        </div>`).join("")}
+      </div>`
+    :"<div style='font-size:11px;color:var(--text3);padding:8px;text-align:center;'>✅ جميع المرشدون نشطون</div>";
+}
+
+function filterG(type, btn){
+  window._guideFilter = type;
+  document.querySelectorAll("#guide-filters button").forEach(b=>b.className="tag tb");
+  if(btn) btn.className="tag tg";
+  buildP4();
+}
+
+// ══════════════════════════════════════════════════════════════════
+// P5 — التنبيهات
+// ══════════════════════════════════════════════════════════════════
+function buildP5(){
+  const ev=DATA.events;
+  const fp=DATA.fullPerf;
+  const guides=fp&&fp.guides?fp.guides:[];
+  const SILENT_THR=3;
+  const MIN_INTERVAL=90;
+
+  const noG=ev.filter(e=>e.guide_skipped==="TRUE");
+  const lateEv=ev.filter(e=>parseFloat(e.delay_minutes)>15);
+  const silentG=guides.filter(g=>(g.silent_hours||0)>=SILENT_THR&&g.completion_pct<100);
+  const notStartG=guides.filter(g=>(g.trips||0)===0&&g.target_trips>0);
+  const intervalW=ev.filter(e=>{
+    const w=Array.isArray(e.warnings)?e.warnings.join(" "):String(e.warnings||"");
+    return w.includes("لم يمضِ")||w.includes("وقت كافٍ")||w.includes("90");
+  });
+
+  // تنبيه اقتراب نهاية المرحلة
+  let phaseEndWarn="";
+  try{
+    const ph=fp&&fp.phases&&fp.phases[0];
+    if(ph&&ph.end_dt){
+      const hrsLeft=(new Date(ph.end_dt)-Date.now())/3600000;
+      if(hrsLeft>0&&hrsLeft<2) phaseEndWarn="⏰ تبقى أقل من ساعتين على نهاية المرحلة!";
+      else if(hrsLeft>0&&hrsLeft<4) phaseEndWarn=`⏰ تبقى ${Math.round(hrsLeft)} ساعات على نهاية المرحلة`;
+    }
+  }catch(ex){}
+
+  const crit=noG.length+lateEv.length;
+  document.getElementById("crit-cnt").textContent=crit+" حرجة";
+  document.getElementById("k5").innerHTML=`
+    <div class="kc kc-r" onclick="tdr('dr-noguide')" style="cursor:pointer;"><div class="k-lbl">بدون مرشد</div><div class="k-val" style="color:var(--red);">${noG.length}</div><div class="k-sub">اضغط للتفاصيل</div></div>
+    <div class="kc kc-a" onclick="tdr('dr-late')" style="cursor:pointer;"><div class="k-lbl">متأخرة +15د</div><div class="k-val" style="color:var(--amber);">${lateEv.length}</div><div class="k-sub">اضغط للتفاصيل</div></div>
+    <div class="kc kc-a" onclick="tdr('dr-silent')" style="cursor:pointer;"><div class="k-lbl">صامت/لم يبدأ</div><div class="k-val" style="color:var(--amber);">${silentG.length+notStartG.length}</div><div class="k-sub">اضغط للتفاصيل</div></div>
+    <div class="kc kc-a" onclick="tdr('dr-interval')" style="cursor:pointer;"><div class="k-lbl">رد مرفوض</div><div class="k-val" style="color:var(--amber);">${intervalW.length}</div><div class="k-sub">حد ${MIN_INTERVAL} د</div></div>
+  `;
+
+  let html="";
+  if(phaseEndWarn) html+=`<div style="background:var(--red2);border:1px solid var(--red);border-radius:6px;padding:8px;margin-bottom:8px;display:flex;align-items:center;gap:8px;"><i class="ti ti-alarm" style="font-size:16px;color:var(--red);"></i><div style="font-size:11px;font-weight:600;color:var(--red);">${phaseEndWarn}</div></div>`;
+
+  // بدون مرشد مقسم
+  if(noG.length){
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--red);border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:5px;">🔴 بدون مرشد (${noG.length})</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        ${[["الرفادة","1"],["رفاد","2"]].map(([lb,gid])=>`<div><b style="font-size:9px;">${lb}</b>${
+          noG.filter(e=>String(e.garage_id)===gid).map(e=>{
+            const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+            const op=e.bus_operation_num||e.operation_num||"—";
+            const cid=String(e.operator_company_id||"");
+            const co=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+            return`<div style="font-size:9px;padding:2px 0;border-bottom:1px solid var(--border);"><b>${op}</b> <span style="color:var(--text3);">${co.substring(0,10)} · ${e.center_id||"—"} · ${t}</span></div>`;
+          }).join("")||"<div style='font-size:9px;color:var(--text3);'>لا بيانات</div>"
+        }</div>`).join("")}
+      </div></div>`;
+  }
+
+  // متأخرة
+  if(lateEv.length){
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--amber);border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:5px;">⚠️ ردود متأخرة (${lateEv.length})</div>
+      ${lateEv.slice(0,6).map(e=>{
+        const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+        const op=e.bus_operation_num||e.operation_num||"—";
+        const cid=String(e.operator_company_id||"");
+        const co=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+        return`<div class="ai ai-w" style="margin-bottom:3px;"><i class="ti ti-clock-x" style="font-size:13px;color:var(--amber);flex-shrink:0;"></i><div style="font-size:9px;flex:1;"><b>${op}</b> ${co.substring(0,12)} · مركز ${e.center_id||"—"} · ${t} <b style="color:var(--amber);">+${e.delay_minutes||0}د</b></div></div>`;
+      }).join("")}
+    </div>`;
+  }
+
+  // صامتون / لم يبدأوا
+  const combined=[...silentG,...notStartG.filter(g=>!silentG.includes(g))];
+  if(combined.length){
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--amber);border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:5px;">🔕 صامتون/لم يبدأوا (${combined.length})</div>
+      ${combined.slice(0,6).map(g=>`<div class="ai ai-w" style="margin-bottom:3px;">
+        <span style="font-size:13px;flex-shrink:0;">${g.trips===0?"⏳":"🔕"}</span>
+        <div style="flex:1;font-size:9px;"><b>${g.name||"—"}</b> · ${g.center_name||"—"} · ${g.trips}/${g.target_trips} ردود${(g.silent_hours||0)>=SILENT_THR?` <b style="color:var(--amber);">صامت ${Math.round(g.silent_hours||0)}س</b>`:""}
+          ${g.supervisor_name?`<br><span style="color:var(--blue);">مشرف: ${g.supervisor_name} ${g.supervisor_phone?`<a href="tel:${g.supervisor_phone}" style="color:var(--blue);">${g.supervisor_phone}</a>`:""}</span>`:""}
+        </div>
+      </div>`).join("")}
+    </div>`;
+  }
+
+  // ردود مرفوضة
+  if(intervalW.length){
+    html+=`<div style="margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--amber);border-bottom:1px solid var(--border);padding-bottom:3px;margin-bottom:5px;">⏱ ردود رُفضت (${intervalW.length})</div>
+      ${intervalW.slice(0,5).map(e=>{
+        const t=e.timestamp?new Date(e.timestamp).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—";
+        const op=e.bus_operation_num||e.operation_num||"—";
+        const cid=String(e.operator_company_id||"");
+        const co=(window.CO_NAMES_MAP&&window.CO_NAMES_MAP[cid])||e.company_name||"—";
+        return`<div class="ai ai-w" style="margin-bottom:3px;"><i class="ti ti-clock-pause" style="font-size:13px;color:var(--amber);flex-shrink:0;"></i><div style="font-size:9px;flex:1;"><b>${op}</b> ${co.substring(0,12)} · مركز ${e.center_id||"—"} · ${t}</div></div>`;
+      }).join("")}
+    </div>`;
+  }
+
+  document.getElementById("alerts-list").innerHTML=html||`<div style="text-align:center;padding:24px 0;"><i class="ti ti-check" style="font-size:28px;color:var(--green);display:block;margin-bottom:8px;"></i><div style="font-size:12px;color:var(--text3);">لا توجد تنبيهات</div></div>`;
+}
+// ══════════════════════════════════════════════════════════════════
+// P6 — تقرير الموسم
+// ══════════════════════════════════════════════════════════════════
+function buildP6(){
+  const ev=DATA.events;
+  const fp=DATA.fullPerf;
+  const centers=fp&&fp.centers?fp.centers:[];
+  const guides=fp&&fp.guides?fp.guides:[];
+  const summary=fp&&fp.summary?fp.summary:{};
+
+  // أرقام أساسية من bus_events
+  const rel=ev.filter(e=>e.event_type==="garage_release").length;
+  const arr=ev.filter(e=>e.event_type==="center_arrival").length;
+  const pil=ev.filter(e=>e.event_type==="center_arrival").reduce((s,e)=>s+(parseFloat(e.pilgrim_count_actual)||0),0);
+  const noG=ev.filter(e=>e.guide_skipped==="TRUE").length;
+
+  // من fullPerf
+  const totalTarget = centers.reduce((s,c)=>s+(c.target_trips||0),0);
+  const totalDone   = centers.reduce((s,c)=>s+(c.arrived||0),0);
+  const avgPct      = totalTarget>0?Math.round(totalDone/totalTarget*100):0;
+  const rfCenters   = centers.filter(c=>parseInt(c.garage_id||0)===1);
+  const rdCenters   = centers.filter(c=>parseInt(c.garage_id||0)===2);
+  const rfPct       = rfCenters.reduce((s,c)=>s+(c.target_trips||0),0)>0
+    ? Math.round(rfCenters.reduce((s,c)=>s+(c.arrived||0),0)/rfCenters.reduce((s,c)=>s+(c.target_trips||0),0)*100) : 0;
+  const rdPct       = rdCenters.reduce((s,c)=>s+(c.target_trips||0),0)>0
+    ? Math.round(rdCenters.reduce((s,c)=>s+(c.arrived||0),0)/rdCenters.reduce((s,c)=>s+(c.target_trips||0),0)*100) : 0;
+
+  // المرشدون
+  const guidesDone  = guides.filter(g=>g.completion_pct>=100).length;
+  const guidesLate  = guides.filter(g=>g.late>0).length;
+  const totalPilgrims = centers.reduce((s,c)=>s+(c.pilgrims_actual||0),0)||pil;
+
+  document.getElementById("season-kpis").innerHTML=`
+    <div class="sk"><div class="sk-v" style="color:${avgPct>=80?"var(--green)":"var(--amber)"};">${avgPct}%</div><div class="sk-l">إنجاز الردود</div></div>
+    <div class="sk"><div class="sk-v">${rel||"—"}</div><div class="sk-l">حافلات أُطلقت</div></div>
+    <div class="sk"><div class="sk-v">${arr||"—"}</div><div class="sk-l">وصلت للمركز</div></div>
+    <div class="sk"><div class="sk-v">${totalPilgrims?totalPilgrims.toLocaleString("ar-SA"):"—"}</div><div class="sk-l">حجاج نُقلوا</div></div>
+    <div class="sk"><div class="sk-v" style="color:var(--red);">${noG}</div><div class="sk-l">بدون مرشد</div></div>
+  `;
+
+  // رسم شريطي — إنجاز المراكز
+  if(charts.c7) charts.c7.destroy();
+  const cTop=centers.filter(c=>c.target_trips>0).sort((a,b)=>b.completion_pct-a.completion_pct).slice(0,12);
+  charts.c7=new Chart(document.getElementById("c7"),{
+    type:"bar",
+    data:{
+      labels:cTop.map(c=>(c.center_name||"مركز "+c.center_id).substring(0,8)),
+      datasets:[{
+        data:cTop.map(c=>c.completion_pct||0),
+        backgroundColor:cTop.map(c=>{const p=c.completion_pct||0;return p>=100?"rgba(15,110,86,.8)":p>=80?"rgba(15,110,86,.5)":p>=50?"rgba(196,125,10,.7)":"rgba(192,57,43,.6)";}),
+        borderRadius:4
+      }]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
+      x:{ticks:{color:"#8a97a8",font:{size:8}},grid:{display:false}},
+      y:{max:100,ticks:{color:"#8a97a8",font:{size:9},callback:v=>v+"%"},grid:{color:"rgba(0,0,0,.05)"}}
+    }}
+  });
+
+  // رسم أفقي — الشركتان
+  if(charts.c8) charts.c8.destroy();
+  charts.c8=new Chart(document.getElementById("c8"),{
+    type:"bar",
+    data:{
+      labels:["الرفادة","رفاد"],
+      datasets:[
+        {label:"إنجاز الردود %",data:[rfPct,rdPct],backgroundColor:["rgba(15,110,86,.75)","rgba(196,125,10,.75)"],borderRadius:4},
+      ]
+    },
+    options:{indexAxis:"y",responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{max:100,ticks:{color:"#8a97a8",font:{size:9},callback:v=>v+"%"},grid:{color:"rgba(0,0,0,.05)"}},y:{ticks:{color:"#8a97a8",font:{size:10}},grid:{display:false}}}}
+  });
+
+  document.getElementById("season-sum").innerHTML=`
+    <div class="mr"><span style="color:var(--text3);">إجمالي الإطلاق</span><span style="font-weight:600;">${rel}</span></div>
+    <div class="mr"><span style="color:var(--text3);">إجمالي الوصول</span><span style="font-weight:600;">${arr}</span></div>
+    <div class="mr"><span style="color:var(--text3);">إجمالي الحجاج</span><span style="font-weight:600;color:var(--green);">${totalPilgrims.toLocaleString("ar-SA")}</span></div>
+    <div class="mr"><span style="color:var(--text3);">الردود المنجزة</span><span style="font-weight:600;color:var(--green);">${totalDone} / ${totalTarget}</span></div>
+    <div class="mr"><span style="color:var(--text3);">رحلات بدون مرشد</span><span style="font-weight:600;color:var(--red);">${noG}</span></div>
+  `;
+  document.getElementById("transport-sum").innerHTML=`
+    <div class="mr"><span style="font-weight:600;color:var(--green);">الرفادة</span><span style="font-weight:600;color:${rfPct>=80?"var(--green)":"var(--amber)"};">${rfPct}% — ${rfCenters.length} مركز</span></div>
+    <div class="mr"><span style="font-weight:600;color:var(--amber);">رفاد</span><span style="font-weight:600;color:${rdPct>=80?"var(--green)":"var(--amber)"};">${rdPct}% — ${rdCenters.length} مركز</span></div>
+    <div class="sep"></div>
+    <div class="mr"><span style="color:var(--text3);">المركز الأفضل</span><span style="font-weight:600;color:var(--green);">${centers.sort((a,b)=>b.completion_pct-a.completion_pct)[0]?.center_name||"—"}</span></div>
+    <div class="mr"><span style="color:var(--text3);">المركز الأضعف</span><span style="font-weight:600;color:var(--red);">${centers.filter(c=>c.target_trips>0).sort((a,b)=>a.completion_pct-b.completion_pct)[0]?.center_name||"—"}</span></div>
+  `;
+  document.getElementById("guide-rec").innerHTML=`
+    <div class="mr"><span style="color:var(--text3);">إجمالي المرشدين</span><span style="font-weight:600;">${guides.length}</span></div>
+    <div class="mr"><span style="color:var(--text3);">أكملوا الهدف</span><span style="font-weight:600;color:var(--green);">${guidesDone}</span></div>
+    <div class="mr"><span style="color:var(--text3);">متأخرون</span><span style="font-weight:600;color:var(--amber);">${guidesLate}</span></div>
+    <div class="sep"></div>
+    ${guides.filter(g=>g.completion_pct>=100).slice(0,3).map(g=>`
+      <div class="mr"><span style="font-size:9px;">✅ ${g.name||"—"}</span><span style="font-size:9px;color:var(--green);">${g.trips}/${g.target_trips} رد</span></div>`).join("")}
+  `;
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────
+function buildDrillTbl(data,cols){
+  if(!data.length) return'<div style="font-size:11px;color:var(--text3);">لا بيانات</div>';
+  const hdr={
+    timestamp:"الوقت",
+    bus_operation_num:"رقم التشغيل",
+    operation_num:"رقم التشغيل",
+    company_name:"الشركة",
+    center_id:"المركز",
+    garage_id:"الجراج",
+    pilgrim_count_actual:"الحجاج",
+    delay_minutes:"التأخير"
+  };
+  // استبدل form_num بـ bus_operation_num + company_name
+  let displayCols = cols.map(c => c==="form_num" ? "bus_operation_num" : c);
+  if(!displayCols.includes("company_name")){
+    const opIdx = displayCols.indexOf("bus_operation_num");
+    if(opIdx>=0) displayCols.splice(opIdx+1, 0, "company_name");
+  }
+  return`<table class="tbl"><tr>${displayCols.map(c=>`<th>${hdr[c]||c}</th>`).join("")}</tr>${
+    data.slice(0,10).map(r=>`<tr>${displayCols.map(c=>{
+      if(c==="timestamp") return`<td style="font-family:var(--mono);font-size:10px;">${r[c]?new Date(r[c]).toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"}):"—"}</td>`;
+      if(c==="delay_minutes") return`<td style="color:var(--amber);">+${r[c]||0} د</td>`;
+      if(c==="bus_operation_num"||c==="operation_num"){
+        const opNum = r.bus_operation_num||r.operation_num||"—";
+        return`<td style="font-family:var(--mono);font-weight:600;">${opNum}</td>`;
+      }
+      if(c==="company_name"){
+        const cid=String(r.operator_company_id||"");
+        const name=(window.CO_NAMES_MAP&&cid&&window.CO_NAMES_MAP[cid])||r.company_name||"—";
+        return`<td style="font-size:9px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${name}">${name}</td>`;
+      }
+      return`<td>${r[c]||"—"}</td>`;
+    }).join("")}</tr>`).join("")
+  }</table>`;
+}
+
+function pg(n,btn){
+  window._curPage=n;
+  [0,1,2,3,4,5,6].forEach(i=>document.getElementById("p"+i).classList.remove("on"));
+  document.getElementById("p"+n).classList.add("on");
+  document.querySelectorAll(".ntab").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  ({1:buildP1,2:buildP2,3:buildP3,4:buildP4,5:buildP5,6:buildP6})[n]?.();
+}
+
+function tdr(id){const el=document.getElementById(id);const was=el.classList.contains("on");document.querySelectorAll(".drill").forEach(d=>d.classList.remove("on"));if(!was)el.classList.add("on");}
+function cdr(id){document.getElementById(id).classList.remove("on");}
+function _applyGuideFilter(guides, f, SILENT_THRESHOLD){
+  if(f==='done')       return guides.filter(g=>g.completion_pct>=100);
+  if(f==='pending')    return guides.filter(g=>g.trips>0&&g.completion_pct<100&&g.late===0&&!((g.silent_hours||0)>=SILENT_THRESHOLD));
+  if(f==='late')       return guides.filter(g=>g.late>0);
+  if(f==='silent')     return guides.filter(g=>(g.silent_hours||0)>=SILENT_THRESHOLD&&g.completion_pct<100);
+  if(f==='notstarted') return guides.filter(g=>g.trips===0);
+  return guides;
+}
+function _setFilterActive(containerId, btn){
+  document.querySelectorAll('#'+containerId+' button').forEach(b=>{b.className='tag tb';b.style.opacity='.6';});
+  if(btn){btn.className='tag tg';btn.style.opacity='1';}
+}
+function filterRf(s,btn){window._rfFilter=s;_setFilterActive('guide-filters',btn);_renderGuides();}
+function filterRd(s,btn){window._rdFilter=s;_setFilterActive('guide-filters-rd',btn);_renderGuides();}
+function filterG(s,btn){filterRf(s,btn);}
+
+function exportPDF(){
+  if(!window.jspdf){ alert("جاري تحميل مكتبة PDF..."); return; }
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+    doc.setFont("helvetica");doc.setFontSize(16);
+    doc.text("Mashir Dashboard Report - Season 1447",20,20);
+    doc.setFontSize(10);doc.text("Generated: "+new Date().toLocaleString("en-US"),20,28);
+    const ev=DATA.events||[];
+    doc.setFontSize(12);doc.text("Summary:",20,40);
+    doc.setFontSize(10);
+    doc.text("Released: "+ev.filter(e=>e.event_type==="garage_release").length,20,50);
+    doc.text("Arrived: "+ev.filter(e=>e.event_type==="center_arrival").length,20,58);
+    doc.save("mashir-"+new Date().toISOString().slice(0,10)+".pdf");
+  }catch(e){alert("PDF: "+e.message);}
+}
+
+init();
+</script>
+</body>
+</html>
