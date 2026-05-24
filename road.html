@@ -413,9 +413,30 @@ html,body{font-family:var(--font);background:var(--bg);min-height:100vh;}
 <div class="toast" id="toast"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXjChSOJ0989G1vlc_NFT3ZV0LhIbNE1oV-vshx67v5QHQ9eqXkn26QzxHkjV2GG-Kjw/exec";
+// ========== بديل callScript المعتمد على fetch (بدلاً من google.script.run) ==========
+async function callScript(action, payload = {}) {
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action, payload: payload })
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    // محاكاة السلوك القديم: حفظ الطلبات من نوع submit محلياً عند فشل الشبكة
+    if (action.startsWith("submit")) {
+      saveOffline(action, payload);
+      return { success: true, offline: true };
+    }
+    return { success: false, error: error.message };
+  }
+}
+// ========== نهاية استبدال google.script.run ==========
 
-function callScript(action,payload={}){return new Promise(resolve=>{try{google.script.run.withSuccessHandler(r=>resolve(typeof r==="string"?JSON.parse(r):r)).withFailureHandler(err=>{if(action.startsWith("submit")){saveOffline(action,payload);resolve({success:true,offline:true});}else resolve({success:false,error:err.message||String(err)});}).handleAction(action,JSON.stringify(payload));}catch(e){resolve({success:false,error:e.message});}});}
 function saveOffline(type,payload){const q=JSON.parse(localStorage.getItem("mq")||"[]");q.push({type:type.replace("submit","").toLowerCase(),payload,ts:Date.now()});localStorage.setItem("mq",JSON.stringify(q));}
 async function syncQ(){const q=JSON.parse(localStorage.getItem("mq")||"[]");if(!q.length)return;const r=await callScript("submitBatch",{items:q});if(r.success){localStorage.removeItem("mq");toast("✓ مُزامَن "+q.length+" عنصر","tok");}}
 window.addEventListener("online",syncQ);
