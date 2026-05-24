@@ -282,41 +282,9 @@ html,body{
             </div>
           </div>
           <!-- قسم الإدخال اليدوي مع إضافة حقل الهاتف -->
-          
-          async function saveDriverManually() {
-  var identity = document.getElementById("d-man-permit").value.trim();
-  var mobile = document.getElementById("d-man-mobile").value.trim();
-  if (!identity || !mobile) {
-    toast("يرجى إدخال رقم الهوية ورقم الهاتف", "twarn");
-    return;
-  }
-  
-  var res = await callScript("saveDriver", {
-    identity_number: identity,
-    mobile: mobile,
-    season_id: SEASON
-  });
-  
-  if (!res.success) {
-    toast("فشل الحفظ: " + res.error, "twarn");
-    return;
-  }
-  
-  // عرض بيانات الساعي في البطاقة
-  document.getElementById("d-name").textContent = "سائق مسجل";
-  document.getElementById("d-permit").textContent = identity;
-  document.getElementById("d-nat").textContent = "تم الحفظ";
-  document.getElementById("r-drv").style.display = "block";
-  document.getElementById("man-drv").style.display = "none";
-  document.getElementById("skip-drv-btn").style.display = "none";
-  document.getElementById("ml-drv").style.display = "none";
-  
-  window._driverData = { id: identity, permit: identity, mobile: mobile };
-  dok = true;
-  dskip = false;
-  updStatus();
-  toast(res.action === "inserted" ? "تم تسجيل السائق" : "تم تحديث رقم الهاتف", "tok");
-}
+          <div id="man-drv" style="display:none;margin-top:10px;">
+            <div class="frow"><label>رقم الهوية</label><input type="text" id="d-man-permit" maxlength="10" placeholder="10 أرقام" oninput="chkDman()"/></div>
+            <div class="frow"><label>رقم الهاتف</label><input type="tel" id="d-man-mobile" placeholder="05xxxxxxxx"/></div>
             <button style="width:100%;padding:10px;border-radius:10px;background:#0F6E56;border:none;color:#fff;font-size:13px;cursor:pointer;margin-top:6px;" onclick="cfDman()">تأكيد بيانات السائق</button>
           </div>
           <div class="ml" id="ml-drv" style="display:none;"><button onclick="toDrvMan()">إدخال رقم الهوية يدوياً</button></div>
@@ -487,8 +455,30 @@ html,body{
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXjChSOJ0989G1vlc_NFT3ZV0LhIbNE1oV-vshx67v5QHQ9eqXkn26QzxHkjV2GG-Kjw/exec";
-function callScript(action,payload={}){return new Promise(resolve=>{try{google.script.run.withSuccessHandler(r=>resolve(typeof r==="string"?JSON.parse(r):r)).withFailureHandler(err=>{if(action.startsWith("submit")){saveOffline(action,payload);resolve({success:true,offline:true});}else resolve({success:false,error:err.message||String(err)});}).handleAction(action,JSON.stringify(payload));}catch(e){resolve({success:false,error:e.message});}});}
+// ========== بديل callScript المعتمد على fetch (بدلاً من google.script.run) ==========
+async function callScript(action, payload = {}) {
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action, payload: payload })
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Fetch error:', error);
+    // محاكاة السلوك القديم: حفظ الطلبات من نوع submit محلياً عند فشل الشبكة
+    if (action.startsWith("submit")) {
+      saveOffline(action, payload);
+      return { success: true, offline: true };
+    }
+    return { success: false, error: error.message };
+  }
+}
+// ========== نهاية استبدال google.script.run ==========
+
 function saveOffline(type,payload){const q=JSON.parse(localStorage.getItem("mq")||"[]");q.push({type:type.replace("submit","").toLowerCase(),payload,ts:Date.now()});localStorage.setItem("mq",JSON.stringify(q));}
 async function syncQ(){const q=JSON.parse(localStorage.getItem("mq")||"[]");if(!q.length)return;const r=await callScript("submitBatch",{items:q});if(r.success){localStorage.removeItem("mq");toast("✓ مُزامَن "+q.length+" عنصر","tok");}}
 window.addEventListener("online",syncQ);
