@@ -494,46 +494,20 @@ input::placeholder{color:var(--text3);}
 <div class="toast" id="toast"></div>
 <script>
 
-// ══ MASHIR API ════════════════════════════════════════════════════════
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXjChSOJ0989G1vlc_NFT3ZV0LhIbNE1oV-vshx67v5QHQ9eqXkn26QzxHkjV2GG-Kjw/exec";
-
-
-	// استبدل الدالة القديمة بالكامل بهذا الكود:
-
-function callScript(action, payload = {}) {
-
-  return new Promise(async (resolve) => {
-
-    try {
-
-      const response = await fetch(WEB_APP_URL, {
-
-        method: 'POST',
-
-        mode: 'cors',
-
-        headers: { 'Content-Type': 'application/json' },
-
-        body: JSON.stringify({ action: action, payload: payload })
-
-      });
-
-      const data = await response.json();
-
-      resolve(data);
-
-    } catch (error) {
-
-      console.error("خطأ في الاتصال:", error);
-
-      resolve({ success: false, data: [] });
-
-    }
-
-  });
-
-} 
-
+async function callScript(action, payload = {}) {
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action, payload: payload })
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("خطأ في الاتصال:", error);
+    return { success: false, data: [] };
+  }
+}
 
 function saveOffline(type, payload) {
   const q = JSON.parse(localStorage.getItem("mq")||"[]");
@@ -550,7 +524,6 @@ async function syncQ() {
 window.addEventListener("online",  syncQ);
 window.addEventListener("offline", ()=>toast("غير متصل — البيانات محفوظة محلياً","twarn"));
 
-// بيانات المستخدم — تُحمَّل من sessionStorage بعد تسجيل الدخول
 let CUR    = JSON.parse(sessionStorage.getItem("mashir_user")||"null");
 let SEASON = parseInt(sessionStorage.getItem("mashir_season")||"1");
 let PHASE  = JSON.parse(sessionStorage.getItem("mashir_phase")||"null");
@@ -558,9 +531,7 @@ let MCFG   = JSON.parse(sessionStorage.getItem("mashir_cfg")||'{"bus_scan":true,
 
 function goLogout() {
   sessionStorage.clear();
-  google.script.run.getLoginUrl
-    ? google.script.run.withSuccessHandler(url=>window.top.location.href=url).getLoginUrl()
-    : window.top.location.href = SCRIPT_URL;
+  window.top.location.href = "index.html";
 }
 
 const COS=[
@@ -610,11 +581,11 @@ function initPbar(){
   if(PHS.length===1){
     pid=PHS[0].id;
     b.innerHTML=`<div class="phase-single"><span class="phase-single-name">${PHS[0].name}</span><span class="pbadge">نشطة اليوم</span></div>`;
-    b.style.cssText="padding:8px 14px;border-bottom:0.5px solid var(--color-border-tertiary);";
+    b.style.cssText="padding:8px 14px;border-bottom:0.5px solid var(--border);";
   } else {
     const t=PHS.map((p,i)=>`<button class="ptab${i===0?" on":""}" onclick="sp(${p.id},this)">${p.name}</button>`).join("");
     b.innerHTML=`<div class="ptabs">${t}</div>`;
-    b.style.cssText="padding:8px 14px;border-bottom:0.5px solid var(--color-border-tertiary);";
+    b.style.cssText="padding:8px 14px;border-bottom:0.5px solid var(--border);";
   }
 }
 function sp(id,btn){pid=id;document.querySelectorAll(".ptab").forEach(b=>b.classList.remove("on"));btn.classList.add("on");const p=PHS.find(x=>x.id===id);if(p){document.getElementById("spn").textContent=p.name;document.getElementById("slbl").textContent=p.name;}chk();}
@@ -623,8 +594,6 @@ function toManual(){imode="manual";document.getElementById("mode-qr").style.disp
 function toQR(){imode="qr";document.getElementById("mode-man").style.display="none";document.getElementById("mode-qr").style.display="block";clco();document.getElementById("iopnum").value="";chk();}
 
 function doScan(){
-  // إذا كان لدينا بيانات حقيقية من الشيت — نستخدمها للتحقق
-  // وإلا نستخدم المحاكاة التجريبية
   sc++;
   const isDup=sc===3;
   if(isDup){
@@ -657,8 +626,8 @@ function onCtr(){
   if(c&&v.length>0){
     const gm=!dg||c.g===dg.id;
     h.style.display="block";h.textContent=(gm?"✓ ":"⚠️ ")+c.name+" — "+c.done+" أُطلقت من "+c.target;
-    h.style.background=gm?"var(--color-background-info)":"var(--color-background-warning)";
-    h.style.color=gm?"var(--color-text-info)":"var(--color-text-warning)";
+    h.style.background=gm?"var(--success-bg)":"var(--warn-bg)";
+    h.style.color=gm?"var(--success-text)":"var(--warn-text)";
   } else h.style.display="none";
   chk();
 }
@@ -686,7 +655,7 @@ async function doSub(){
   const ctr=document.getElementById("ictr").value.trim(),p=PHS.find(x=>x.id===pid);
   const t=new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
   const bl=imode==="qr"?"استمارة "+document.getElementById("fval").textContent:"تشغيل "+document.getElementById("iopnum").value.trim();
-  // إرسال للشيت
+  
   const res = await callScript("submitGarageRelease", {
     user_id: CUR?.user_id||"",
     garage_id: CUR?.current_garage_id||"",
@@ -699,6 +668,7 @@ async function doSub(){
     phase_id: p?.id||PHASE?.phase_id||"",
     release_time: new Date().toISOString(),
   });
+  
   if(!res.success){ toast("خطأ: "+res.error,"twarn"); return; }
   rb.unshift({bus:bl,ctr,phase:p?.name||"—",time:t});if(rb.length>5)rb.pop();
   ltd++;
@@ -707,8 +677,8 @@ async function doSub(){
   document.getElementById("smeta").innerHTML=(p?.name||"—")+"<br>مركز "+ctr+" | "+bl+" | "+t;
   document.getElementById("sbdg").textContent=ltd;
   document.getElementById("mform").style.display="none";
-  document.getElementById("sbody").style.display="flex";document.getElementById("sbody").style.flexDirection="column";
-  toast("✓ تم تسجيل الإطلاق"+(res.offline?" (محفوظ)":""),"tok");
+  document.getElementById("sbody").style.display="flex";
+  toast("✓ تم تسجيل الإطلاق","tok");
 }
 
 function nbus(){
@@ -718,8 +688,7 @@ function nbus(){
   document.getElementById("mode-qr").style.display="block";document.getElementById("mode-man").style.display="none";
   document.getElementById("ictr").value="";document.getElementById("chint").style.display="none";
   document.getElementById("iopnum").value="";clco();document.getElementById("bsub").disabled=true;
-  document.getElementById("mform").style.display="flex";document.getElementById("mform").style.flexDirection="column";
-  document.getElementById("sbody").style.display="none";
+  document.getElementById("mform").style.display="flex";document.getElementById("sbody").style.display="none";
 }
 
 function sf(f,btn){af=f;document.querySelectorAll(".fc").forEach(b=>b.classList.remove("on"));btn.classList.add("on");rc();}
@@ -733,74 +702,40 @@ function rc(){
   else if(af==="done")list=list.filter(c=>c.done>=c.target);
   list.sort((a,b)=>a.done/a.target-b.done/b.target);
   const cl=document.getElementById("cl");
-  if(!list.length){cl.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);padding:8px;text-align:center;">لا توجد نتائج</div>';return;}
+  if(!list.length){cl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px;text-align:center;">لا توجد نتائج</div>';return;}
   cl.innerHTML=list.map(c=>{
     const pct=Math.round(c.done/c.target*100),cls=pct>=80?"pfg":pct>=50?"pfa":"pfr",col=pct>=80?"#1D9E75":pct>=50?"#BA7517":"#E24B4A";
     const st=c.done===0?"❌ لم يبدأ":c.done>=c.target?"✅ مكتمل":"⚡ جزئي";
-    const gt=dg&&c.g!==dg.id?'<span style="font-size:10px;background:var(--color-background-warning);color:var(--color-text-warning);padding:1px 6px;border-radius:10px;margin-left:4px;">جراج آخر</span>':"";
+    const gt=dg&&c.g!==dg.id?'<span style="font-size:10px;background:var(--warn-bg);color:var(--warn-text);padding:1px 6px;border-radius:10px;margin-left:4px;">جراج آخر</span>':"";
     return `<div class="ci2"><div class="ci2-top"><span class="ci2-name">${c.name}${gt}</span><span class="ci2-pct" style="color:${col}">${pct}% ${st}</span></div><div class="ci2-sub">${c.done} أُطلقت | ${c.target} مستهدف | متبقي ${c.target-c.done}</div><div class="prog"><div class="pf ${cls}" style="width:${Math.max(pct,2)}%"></div></div></div>`;
   }).join("");
 }
 
 function bldR(){
   const rl=document.getElementById("rl");
-  if(!rb.length){rl.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);padding:6px;">لا يوجد إطلاق في هذه الجلسة</div>';return;}
+  if(!rb.length){rl.innerHTML='<div style="font-size:12px;color:var(--text3);padding:6px;">لا يوجد إطلاق في هذه الجلسة</div>';return;}
   rl.innerHTML=rb.map(b=>`<div class="ri2"><span>${b.bus} → مركز ${b.ctr}</span><span class="ri2t">${b.time}</span></div>`).join("");
 }
 
 function showSum(){bldR();rc();document.getElementById("sc-main").style.display="none";document.getElementById("sc-sum").style.display="block";}
 function hideSum(){document.getElementById("sc-sum").style.display="none";document.getElementById("sc-main").style.display="block";nbus();}
-// goLogout → shared
 
-window.addEventListener("online",()=>{const b=document.getElementById("nbar");b.style.background="var(--color-background-success)";b.style.color="var(--color-text-success)";document.getElementById("nic").className="ti ti-wifi";document.getElementById("ntxt").textContent="متصل";});
-window.addEventListener("offline",()=>{const b=document.getElementById("nbar");b.style.background="var(--color-background-danger)";b.style.color="var(--color-text-danger)";document.getElementById("nic").className="ti ti-wifi-off";document.getElementById("ntxt").textContent="غير متصل";});
+window.addEventListener("online",()=>{const b=document.getElementById("nbar");b.style.background="var(--success-bg)";b.style.color="var(--success-text)";document.getElementById("nic").className="ti ti-wifi";document.getElementById("ntxt").textContent="متصل";});
+window.addEventListener("offline",()=>{const b=document.getElementById("nbar");b.style.background="var(--red-bg)";b.style.color="var(--red)";document.getElementById("nic").className="ti ti-wifi-off";document.getElementById("ntxt").textContent="غير متصل";});
 document.addEventListener("click",e=>{if(!e.target.closest(".sw")&&!e.target.closest(".dd"))document.getElementById("codd").className="dd";});
 
-initGPS();initPbar();rc();
-// تهيئة الشاشة من بيانات الجلسة
 (function init(){
-  if(!CUR){ window.top.location.href=SCRIPT_URL; return; }
-  const roleTag=document.querySelector(".role-tag");
-  if(roleTag) roleTag.textContent=CUR.name;
-  if(PHASE){
-    const el=document.getElementById("spn"); if(el) el.textContent=PHASE.phase_name||"—";
-    const el2=document.getElementById("slbl"); if(el2) el2.textContent=PHASE.phase_name||"—";
-  }
-  // جلب حافلات الجراج من الشيت
-  if(CUR.current_garage_id){
-    callScript("getBusesByGarage",{garageId:CUR.current_garage_id}).then(r=>{
-      if(r.success&&r.buses&&r.buses.length){
-        window._garageBuses=r.buses;
-      }
-    });
-  }
-  // جلب المرحلة النشطة إذا لم تكن محفوظة
+  if(!CUR){ window.top.location.href="index.html"; return; }
+  initGPS(); initPbar(); rc();
   callScript("getActivePhases",{seasonId:SEASON}).then(ph=>{
     if(ph.success&&ph.phases&&ph.phases.length){
       PHASE = ph.phases[0];
-      ALL_PHASES = ph.phases;
       sessionStorage.setItem("mashir_phase", JSON.stringify(ph.phases[0]));
-      sessionStorage.setItem("mashir_phases", JSON.stringify(ph.phases));
-      const pname = ph.has_overlap
-        ? ph.phases.map(p=>p.phase_name).join(" + ")
-        : ph.phases[0].phase_name||"—";
-      const el=document.getElementById("spn"); if(el) el.textContent=pname;
-      const el2=document.getElementById("slbl"); if(el2) el2.textContent=pname;
-      if(typeof initPbar==="function") initPbar();
+      const pname = ph.has_overlap ? ph.phases.map(p=>p.phase_name).join(" + ") : ph.phases[0].phase_name||"—";
+      document.getElementById("spn").textContent=pname;
+      document.getElementById("slbl").textContent=pname;
     }
   });
-  // جلب service_config إذا لم يكن محفوظاً
-  if(!MCFG || Object.keys(MCFG).length===0){
-    callScript("getServiceConfig",{seasonId:SEASON}).then(cf=>{
-      if(cf.success&&cf.config){
-        MCFG={...MCFG,...cf.config};
-        sessionStorage.setItem("mashir_cfg",JSON.stringify(MCFG));
-        if(typeof buildCfgBar==="function") buildCfgBar();
-        if(typeof buildTabs==="function") buildTabs();
-      }
-    });
-  }
-  initGPS(); initPbar(); rc();
 })();
 
 function toast(m,c){const t=document.getElementById("toast");t.textContent=m;t.className="toast on "+(c||"tok");setTimeout(()=>t.className="toast",2400);}
