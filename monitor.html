@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>مشير — المسار</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+/* (كل الـ style كما هو موجود في ملفك الأصلي، لم أقم بتغييره) */
+:root{
+  --font-sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  --color-background-primary:#fff;
+  --color-background-secondary:#e8e8ed;
+  --color-background-tertiary:#f5f5f7;
+  --color-background-success:#e8f5ee;
+  --color-background-danger:#fde8e8;
+  --color-background-warning:#fef3dc;
+  --color-background-info:#e6f0fb;
+  --color-text-primary:#1c1c1e;
+  --color-text-secondary:#6d6d72;
+  --color-text-tertiary:#aeaeb2;
+  --color-text-success:#085041;
+  --color-text-danger:#7b1c1c;
+  --color-text-warning:#7a4b00;
+  --color-text-info:#185FA5;
+  --color-border-tertiary:#d1d1d6;
+  --color-border-secondary:#c7c7cc;
+  --border-radius-md:8px;
+  --border-radius-lg:12px;
+}
+html,body{
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  background:#f5f5f7;
+  min-height:100vh;
+}
+*{box-sizing:border-box;margin:0;padding:0;direction:rtl;}
+.app{max-width:390px;margin:0 auto;font-family:var(--font-sans);background:var(--color-background-tertiary);}
+.topbar{background:#0F6E56;padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.topbar h1{font-size:15px;font-weight:500;color:#fff;flex:1;}
+.tb-btn{background:rgba(255,255,255,0.18);border:none;border-radius:8px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;}
+.role-tag{font-size:11px;background:rgba(255,255,255,0.22);color:#fff;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.net-bar{display:flex;align-items:center;justify-content:center;gap:5px;padding:5px;font-size:11px;background:var(--color-background-success);color:var(--color-text-success);}
+.cbar{background:#085041;padding:10px 16px;}
+.cb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.cb-name{font-size:13px;font-weight:500;color:#fff;}
+.cbn-g{display:flex;gap:10px;align-items:center;}
+.cbn .n{font-size:13px;font-weight:500;color:#fff;text-align:center;}
+.cbn .l{font-size:10px;color:rgba(255,255,255,0.65);text-align:center;}
+.cbsep{width:0.5px;height:20px;background:rgba(255,255,255,0.2);}
+.cb-track{background:rgba(0,0,0,0.25);border-radius:3px;height:3px;overflow:hidden;}
+.cb-fill{background:#fff;height:3px;border-radius:3px;transition:width .5s;}
+.phase-bar{padding:7px 14px;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:space-between;background:var(--color-background-secondary);}
+.phase-lbl{font-size:12px;font-weight:500;color:var(--color-text-primary);}
+.phase-bdg{font-size:10px;background:var(--color-background-success);color:var(--color-text-success);padding:2px 7px;border-radius:20px;}
+.cfg-bar{display:flex;gap:5px;padding:8px 14px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);flex-wrap:wrap;align-items:center;}
+.cfg-lbl{font-size:10px;color:var(--color-text-secondary);margin-left:4px;}
+.cfg-chip{font-size:10px;padding:2px 7px;border-radius:20px;display:flex;align-items:center;gap:3px;}
+.cfg-req{background:#E1F5EE;color:#085041;}
+.cfg-opt{background:var(--color-background-secondary);color:var(--color-text-secondary);}
+.tab-bar{display:flex;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:0 8px;}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;position:relative;}
+.tab.active{border-bottom-color:#0F6E56;}
+.tab.optional-tab{opacity:.7;}
+.tab-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;}
+.tab.active .tab-icon{background:#0F6E56;color:#fff;}
+.tab:not(.active):not(.done):not(.warn-tab) .tab-icon{background:var(--color-background-secondary);color:var(--color-text-secondary);}
+.tab.done .tab-icon{background:var(--color-background-success);color:var(--color-text-success);}
+.tab.warn-tab .tab-icon{background:#FAEEDA;color:#854F0B;}
+.tab-lbl{font-size:10px;color:var(--color-text-secondary);text-align:center;line-height:1.2;}
+.tab.active .tab-lbl{color:#0F6E56;font-weight:500;}
+.tab-req{font-size:9px;color:var(--color-text-danger);text-align:center;}
+.tab-opt{font-size:9px;color:var(--color-text-secondary);text-align:center;}
+.tab-dot{position:absolute;top:6px;left:6px;width:7px;height:7px;border-radius:50%;display:none;}
+.tab.done .tab-dot{display:block;background:#0F6E56;}
+.tab.warn-tab .tab-dot{display:block;background:#EF9F27;}
+.pg{display:none;}.pg.on{display:block;}
+.body{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.gps-r{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:8px;font-size:12px;}
+.g-ok{background:var(--color-background-success);color:var(--color-text-success);}
+.g-warn{background:var(--color-background-warning);color:var(--color-text-warning);}
+.gps-r i{font-size:14px;flex-shrink:0;}
+.gi{flex:1;}.gn{font-weight:500;}.gs{font-size:10px;opacity:.8;margin-top:1px;}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;}
+.chdr{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;}
+.chdr i{font-size:15px;color:#0F6E56;}
+.opt-badge{font-size:10px;background:var(--color-background-secondary);color:var(--color-text-secondary);padding:2px 7px;border-radius:20px;margin-right:auto;}
+.req-badge{font-size:10px;background:#E1F5EE;color:#085041;padding:2px 7px;border-radius:20px;margin-right:auto;}
+.cam{background:#0d1f18;border-radius:10px;height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;position:relative;overflow:hidden;width:100%;}
+.cam-c{position:absolute;width:20px;height:20px;border-color:#0F6E56;border-style:solid;border-width:0;}
+.tl{top:10px;right:10px;border-top-width:3px;border-right-width:3px;}
+.tr{top:10px;left:10px;border-top-width:3px;border-left-width:3px;}
+.bl{bottom:10px;right:10px;border-bottom-width:3px;border-right-width:3px;}
+.br{bottom:10px;left:10px;border-bottom-width:3px;border-left-width:3px;}
+.cam-ln{position:absolute;width:70%;height:2px;background:rgba(15,110,86,0.6);animation:sc 2s ease-in-out infinite;}
+@keyframes sc{0%{top:20%;}50%{top:75%;}100%{top:20%;}}
+.cam i{font-size:30px;color:rgba(255,255,255,0.25);}
+.cam span{font-size:12px;color:rgba(255,255,255,0.5);}
+.cam.ok{background:#0a2e22;}.cam.err{background:#2e0a0a;}
+.skip-opt{width:100%;padding:10px;border-radius:10px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;}
+.skip-opt:hover{background:var(--color-border-tertiary);}
+.alt{display:flex;align-items:flex-start;gap:7px;padding:9px 11px;border-radius:8px;font-size:12px;margin-top:8px;}
+.alt i{font-size:14px;flex-shrink:0;margin-top:1px;}
+.aerr{background:var(--color-background-danger);color:var(--color-text-danger);}
+.awrn{background:var(--color-background-warning);color:var(--color-text-warning);}
+.res{background:var(--color-background-secondary);border-radius:8px;padding:9px 12px;margin-top:10px;}
+.rr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px;}
+.rr:last-child{border-bottom:none;padding-bottom:0;}
+.rl{color:var(--color-text-secondary);}.rv{font-weight:500;color:var(--color-text-primary);}
+.rv-ok{color:var(--color-text-success);}
+.ml{display:flex;justify-content:center;margin-top:8px;}
+.ml button{background:none;border:none;font-size:12px;color:var(--color-text-info);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+.frow{margin-bottom:10px;}.frow:last-child{margin-bottom:0;}
+.frow label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px;}
+.req{color:var(--color-text-danger);margin-right:2px;}
+.frow input{width:100%;font-size:13px;}
+.sw{position:relative;}.sw input{width:100%;font-size:13px;padding-left:30px;}
+.si2{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--color-text-secondary);pointer-events:none;}
+.dd{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:8px;max-height:130px;overflow-y:auto;margin-top:3px;display:none;}
+.dd.on{display:block;}
+.ddr{padding:8px 12px;font-size:12px;cursor:pointer;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;}
+.ddr:last-child{border-bottom:none;}.ddr:hover{background:var(--color-background-secondary);}
+.ddid{font-size:10px;color:var(--color-text-tertiary);}
+.co-ch{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;background:var(--color-background-success);border-radius:8px;font-size:12px;color:var(--color-text-success);margin-top:5px;}
+.co-ch button{background:none;border:none;cursor:pointer;color:var(--color-text-danger);font-size:16px;line-height:1;padding:0;}
+.edit-btn-g{width:100%;padding:9px;border-radius:10px;background:var(--color-background-info);border:none;color:var(--color-text-info);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;margin-top:6px;}
+.hctr{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px;background:var(--color-background-secondary);border-radius:10px;margin-bottom:10px;}
+.hcn{font-size:56px;font-weight:500;color:var(--color-text-primary);line-height:1;}
+.hcm{font-size:11px;color:var(--color-text-secondary);}
+.hce{font-size:11px;color:var(--color-text-warning);margin-top:2px;}
+.scan-btn{width:100%;padding:12px;border-radius:10px;background:#0F6E56;border:none;color:#fff;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:8px;}
+.div-line{display:flex;align-items:center;gap:8px;margin:8px 0;}
+.div-line span{font-size:11px;color:var(--color-text-tertiary);}
+.div-line::before,.div-line::after{content:'';flex:1;height:0.5px;background:var(--color-border-tertiary);}
+.padj{display:flex;align-items:center;gap:8px;}
+.padj input{flex:1;font-size:16px;text-align:center;font-weight:500;}
+.pb{width:40px;height:40px;border-radius:8px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;}
+.scan-mode{display:none;flex-direction:column;gap:8px;}
+.scan-mode.on{display:flex;}
+.ss{display:flex;align-items:center;justify-content:space-around;padding:10px 13px;background:var(--color-background-primary);border-radius:10px;border:0.5px solid var(--color-border-tertiary);}
+.ss-n{font-size:22px;font-weight:500;color:var(--color-text-primary);}
+.ss-l{font-size:10px;color:var(--color-text-secondary);}
+.cam-sm{background:#0d1f18;border-radius:10px;height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;position:relative;overflow:hidden;}
+.cam-sm .cam-ln{animation:sc 1.5s ease-in-out infinite;}
+.smsg{font-size:12px;text-align:center;color:var(--color-text-secondary);}
+.end-btn{width:100%;padding:10px;border-radius:10px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.submit-row{padding:12px 14px;background:var(--color-background-primary);border-top:0.5px solid var(--color-border-tertiary);}
+.status-row{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.st-chip{display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;}
+.st-ok{background:var(--color-background-success);color:var(--color-text-success);}
+.st-pend{background:var(--color-background-secondary);color:var(--color-text-secondary);}
+.st-warn{background:#FAEEDA;color:#854F0B;}
+.st-skip{background:var(--color-background-secondary);color:var(--color-text-secondary);opacity:.6;}
+.submit-btn{width:100%;padding:13px;border-radius:12px;background:#0F6E56;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s;}
+.submit-btn:disabled{opacity:.22;cursor:not-allowed;}
+.submit-btn:not(:disabled):hover{opacity:.88;}
+.cf-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;}
+.cf-t{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.cf-rows{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
+.cfr{display:flex;justify-content:space-between;padding:7px 10px;background:var(--color-background-secondary);border-radius:8px;font-size:12px;}
+.cfr .cl{color:var(--color-text-secondary);}.cfr .cv{font-weight:500;color:var(--color-text-primary);max-width:190px;word-break:break-word;}
+.cf-warn{display:flex;align-items:flex-start;gap:7px;padding:9px 11px;border-radius:8px;font-size:12px;margin-bottom:10px;background:var(--color-background-warning);color:var(--color-text-warning);}
+.btn-cf{width:100%;padding:13px;border-radius:12px;background:#0F6E56;border:none;color:#fff;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+.back-l{display:flex;justify-content:center;margin-top:8px;}
+.back-l button{background:none;border:none;font-size:12px;color:var(--color-text-secondary);cursor:pointer;}
+.scard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:22px 14px;display:flex;flex-direction:column;align-items:center;gap:11px;}
+.sico{width:60px;height:60px;border-radius:50%;background:var(--color-background-success);display:flex;align-items:center;justify-content:center;}
+.sico i{font-size:30px;color:var(--color-text-success);}
+.stit{font-size:17px;font-weight:500;color:var(--color-text-primary);}
+.smeta{font-size:12px;color:var(--color-text-secondary);text-align:center;line-height:1.8;}
+.cyc-b{background:#0F6E56;color:#fff;border-radius:20px;font-size:13px;padding:4px 14px;font-weight:500;}
+.bgrn{width:100%;padding:13px;border-radius:12px;background:#0F6E56;border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
+.bsec{width:100%;padding:11px;border-radius:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-primary);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:8px;}
+.sp{padding:14px;display:flex;flex-direction:column;gap:10px;}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.sc2{background:var(--color-background-secondary);border-radius:8px;padding:12px;text-align:center;}
+.sc2 .n{font-size:24px;font-weight:500;color:var(--color-text-primary);}
+.sc2 .l{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.pw{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:14px;}
+.pl{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;}
+.pln{font-weight:500;color:var(--color-text-primary);}.plp{font-weight:500;color:#0F6E56;}
+.pt{background:var(--color-border-tertiary);border-radius:4px;height:8px;overflow:hidden;margin-bottom:6px;}
+.pf{height:8px;border-radius:4px;background:#0F6E56;transition:width .6s;}
+.ps2{font-size:11px;color:var(--color-text-secondary);}
+.avg-box{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:var(--color-background-secondary);border-radius:8px;}
+.rlbl{font-size:12px;color:var(--color-text-secondary);font-weight:500;}
+.hi{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.hil .hb{font-weight:500;color:var(--color-text-primary);}
+.hil .hs{font-size:11px;color:var(--color-text-secondary);margin-top:1px;}
+.hir .ht{font-size:11px;color:var(--color-text-secondary);}
+.hir .hd{font-size:11px;}
+.hok{color:var(--color-text-success);}.hlate{color:var(--color-text-danger);}
+</style>
+</head>
+<body>
+<div class="app">
+<div id="sc-main">
+  <div class="topbar">
+    <button class="tb-btn" id="bbtn" onclick="goBack()" style="display:none;" aria-label="رجوع"><i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+    <h1 id="ptitle">استقبال حافلة</h1>
+    <button class="tb-btn" onclick="showSum()" aria-label="ملخص"><i class="ti ti-chart-bar" aria-hidden="true"></i></button>
+    <span class="role-tag">مشرف المسار</span>
+  </div>
+  <div class="net-bar"><i class="ti ti-wifi" aria-hidden="true"></i><span>متصل</span></div>
+  <div class="cbar">
+    <div class="cb-top">
+      <span class="cb-name" id="center-name">—</span>
+      <div class="cbn-g">
+        <div class="cbn"><div class="n" id="cbd">0</div><div class="l">رد</div></div>
+        <div class="cbsep"></div>
+        <div class="cbn"><div class="n">9</div><div class="l">مستهدف</div></div>
+        <div class="cbsep"></div>
+        <div class="cbn"><div class="n" id="cbp">0</div><div class="l">حاج</div></div>
+        <div class="cbsep"></div>
+        <div class="cbn"><div class="n" id="cba">—</div><div class="l">دقيقة</div></div>
+      </div>
+    </div>
+    <div class="cb-track"><div class="cb-fill" id="cbf" style="width:0%"></div></div>
+  </div>
+  <div class="phase-bar">
+    <span class="phase-lbl">تروية مكة - منى</span>
+    <span class="phase-bdg">نشطة اليوم</span>
+  </div>
+  <div class="cfg-bar" id="cfg-bar"></div>
+  <div id="sc-form">
+    <div class="tab-bar" id="tab-bar"></div>
+
+    <!-- تبويب الحافلة -->
+    <div class="pg on" id="tab-bus">
+      <div class="body">
+        <div class="gps-r g-warn" id="grow">
+          <i class="ti ti-map-pin" aria-hidden="true"></i>
+          <div class="gi"><div class="gn" id="gnm">جاري تحديد الموقع...</div><div class="gs" id="gsb">—</div></div>
+          <i class="ti ti-alert-triangle" id="gic" style="font-size:14px;" aria-hidden="true"></i>
+        </div>
+        <div class="card">
+          <div class="chdr"><i class="ti ti-bus" aria-hidden="true"></i> مسح QR الحافلة <span class="req-badge">إلزامي</span></div>
+          <div class="cam" id="cam1" onclick="scanBus()">
+            <div class="cam-c tl"></div><div class="cam-c tr"></div><div class="cam-c bl"></div><div class="cam-c br"></div>
+            <div class="cam-ln"></div>
+            <i class="ti ti-scan" aria-hidden="true"></i><span>اضغط لمسح QR الحافلة</span>
+          </div>
+          <div id="a1" style="display:none;"></div>
+          <div id="r1" style="display:none;">
+            <div class="res">
+              <div class="rr"><span class="rl">رقم الاستمارة</span><span class="rv" id="r1f">—</span></div>
+              <div class="rr" id="r1or"><span class="rl">رقم التشغيل</span><span class="rv" id="r1o">—</span></div>
+              <div class="rr" id="r1cr"><span class="rl">شركة النقل</span><span class="rv" id="r1c">—</span></div>
+              <div class="rr"><span class="rl">المركز المخصص</span><span class="rv rv-ok" id="r1ctr">—</span></div>
+            </div>
+          </div>
+          <div class="ml" id="ml1"><button onclick="toMan()">إدخال يدوي بدلاً منه</button></div>
+          <div id="man1" style="display:none;margin-top:10px;">
+            <div class="frow">
+              <label><span class="req">*</span> رقم تشغيل الحافلة</label>
+              <input type="number" inputmode="numeric" placeholder="مثال: 6065" id="mop" oninput="clearManualResult()"/>
+            </div>
+          </div>
+          <div id="man1-result" style="display:none;padding:8px;background:#eef1f5;border-radius:8px;margin:6px 0;font-size:12px;"></div>
+          <div class="ml"><button onclick="toQR()">مسح QR بدلاً منه</button></div>
+          <button style="width:100%;padding:10px;border-radius:10px;background:#0F6E56;border:none;color:#fff;font-size:13px;cursor:pointer;margin-top:6px;" onclick="manualSearch()">تأكيد البيانات</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- تبويب السائق (تم إضافة حقل رقم الهاتف) -->
+    <div class="pg" id="tab-drv">
+      <div class="body">
+        <div class="card">
+          <div class="chdr" id="drv-hdr"><i class="ti ti-steering-wheel" aria-hidden="true"></i> مسح QR السائق</div>
+          <div class="cam" id="cam-d" onclick="scanD()">
+            <div class="cam-c tl"></div><div class="cam-c tr"></div><div class="cam-c bl"></div><div class="cam-c br"></div>
+            <div class="cam-ln"></div>
+            <i class="ti ti-scan" aria-hidden="true"></i><span>اضغط لمسح QR السائق</span>
+          </div>
+          <div id="r-drv" style="display:none;">
+            <div class="res">
+              <div class="rr"><span class="rl">الاسم</span><span class="rv rv-ok" id="d-name">—</span></div>
+              <div class="rr"><span class="rl">رقم التصريح</span><span class="rv" id="d-permit">—</span></div>
+              <div class="rr"><span class="rl">الجنسية</span><span class="rv" id="d-nat">—</span></div>
+            </div>
+          </div>
+          <!-- قسم الإدخال اليدوي مع إضافة حقل الهاتف -->
+          
+          async function saveDriverManually() {
+  var identity = document.getElementById("d-man-permit").value.trim();
+  var mobile = document.getElementById("d-man-mobile").value.trim();
+  if (!identity || !mobile) {
+    toast("يرجى إدخال رقم الهوية ورقم الهاتف", "twarn");
+    return;
+  }
+  
+  var res = await callScript("saveDriver", {
+    identity_number: identity,
+    mobile: mobile,
+    season_id: SEASON
+  });
+  
+  if (!res.success) {
+    toast("فشل الحفظ: " + res.error, "twarn");
+    return;
+  }
+  
+  // عرض بيانات الساعي في البطاقة
+  document.getElementById("d-name").textContent = "سائق مسجل";
+  document.getElementById("d-permit").textContent = identity;
+  document.getElementById("d-nat").textContent = "تم الحفظ";
+  document.getElementById("r-drv").style.display = "block";
+  document.getElementById("man-drv").style.display = "none";
+  document.getElementById("skip-drv-btn").style.display = "none";
+  document.getElementById("ml-drv").style.display = "none";
+  
+  window._driverData = { id: identity, permit: identity, mobile: mobile };
+  dok = true;
+  dskip = false;
+  updStatus();
+  toast(res.action === "inserted" ? "تم تسجيل السائق" : "تم تحديث رقم الهاتف", "tok");
+}
+            <button style="width:100%;padding:10px;border-radius:10px;background:#0F6E56;border:none;color:#fff;font-size:13px;cursor:pointer;margin-top:6px;" onclick="cfDman()">تأكيد بيانات السائق</button>
+          </div>
+          <div class="ml" id="ml-drv" style="display:none;"><button onclick="toDrvMan()">إدخال رقم الهوية يدوياً</button></div>
+          <button class="skip-opt" id="skip-drv-btn" onclick="skipDrv()" style="display:none;">
+            <i class="ti ti-forward-skip" style="font-size:13px;" aria-hidden="true"></i>
+            تخطي — اختياري
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- تبويب المرشد -->
+    <div class="pg" id="tab-gde">
+      <div class="body">
+        <div class="card">
+          <div class="chdr" id="gde-hdr"><i class="ti ti-user-check" aria-hidden="true"></i> مسح QR المرشد</div>
+          <div class="cam" id="cam-g" onclick="scanG()">
+            <div class="cam-c tl"></div><div class="cam-c tr"></div><div class="cam-c bl"></div><div class="cam-c br"></div>
+            <div class="cam-ln"></div>
+            <i class="ti ti-scan" aria-hidden="true"></i><span>اضغط لمسح QR المرشد</span>
+          </div>
+          <div id="r-gde" style="display:none;">
+            <div class="res">
+              <div class="rr"><span class="rl">الاسم</span><span class="rv rv-ok" id="g-name">—</span></div>
+              <div class="rr"><span class="rl">شركة الخدمة</span><span class="rv" id="g-co">—</span></div>
+              <div class="rr"><span class="rl">رقم التصريح</span><span class="rv" id="g-permit">—</span></div>
+            </div>
+          </div>
+          <div id="man-gde" style="display:none;margin-top:10px;">
+            <div class="frow">
+              <label><span class="req">*</span> رقم الهوية</label>
+              <input type="text" inputmode="numeric" placeholder="رقم الهوية (10 أرقام)" id="g-man-permit" maxlength="10" oninput="chkGman()"/>
+            </div>
+            <button style="width:100%;padding:10px;border-radius:10px;background:#0F6E56;border:none;color:#fff;font-size:13px;cursor:pointer;margin-top:6px;" onclick="cfGman()">تأكيد بيانات المرشد</button>
+          </div>
+          <div class="ml" id="ml-gde" style="display:none;"><button onclick="toGdeMan()">إدخال رقم الهوية يدوياً</button></div>
+          <div id="skip-g-row" style="margin-top:8px;">
+            <button class="skip-opt" id="skip-gde-btn" onclick="skipG()">
+              <i class="ti ti-user-off" style="font-size:13px;" aria-hidden="true"></i>
+              <span id="skip-gde-lbl">بدون مرشد — سيُولَّد تنبيه</span>
+            </button>
+          </div>
+          <div id="edit-g-row" style="display:none;">
+            <button class="edit-btn-g" onclick="editG()">
+              <i class="ti ti-edit" style="font-size:13px;" aria-hidden="true"></i>
+              تعديل — إضافة المرشد
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- تبويب الحاج -->
+    <div class="pg" id="tab-hajj">
+      <div class="body">
+        <div class="card">
+          <div class="chdr" id="hajj-hdr"><i class="ti ti-users" aria-hidden="true"></i> تسجيل الحجاج</div>
+          <div id="pidle">
+            <div class="hctr">
+              <div class="hcn" id="pcount">0</div>
+              <div class="hcm">الحد المصرح: 47 راكب</div>
+              <div class="hce" id="pextra" style="display:none;">—</div>
+            </div>
+            <button class="scan-btn" onclick="startScan()">
+              <i class="ti ti-scan" aria-hidden="true"></i> بدء مسح كارت نسك حاج
+            </button>
+            <div class="div-line"><span>أو أدخل العدد يدوياً</span></div>
+            <div class="padj">
+              <button class="pb" onclick="adjP(-1)">−</button>
+              <input type="number" id="pman" placeholder="0" min="0" max="60" inputmode="numeric" oninput="updP()"/>
+              <button class="pb" onclick="adjP(1)">+</button>
+            </div>
+            <div style="font-size:11px;color:var(--color-text-secondary);text-align:center;margin-top:6px;">مسح الكروت للتسجيل الكامل — الإدخال اليدوي للعدد فقط</div>
+          </div>
+          <div class="scan-mode" id="pscan">
+            <div class="ss">
+              <div style="text-align:center;"><div class="ss-n" id="sn-tot">0</div><div class="ss-l">إجمالي</div></div>
+              <div style="width:0.5px;height:32px;background:var(--color-border-tertiary);"></div>
+              <div style="text-align:center;"><div class="ss-n" style="color:#0F6E56;" id="sn-off">0</div><div class="ss-l">رسمي</div></div>
+              <div style="width:0.5px;height:32px;background:var(--color-border-tertiary);"></div>
+              <div style="text-align:center;"><div class="ss-n" style="color:var(--color-text-warning);" id="sn-ext">0</div><div class="ss-l">إضافي</div></div>
+            </div>
+            <div class="cam-sm" onclick="doScanH()">
+              <div class="cam-ln" style="position:absolute;"></div>
+              <i class="ti ti-scan" style="font-size:26px;color:rgba(255,255,255,0.4);" aria-hidden="true"></i>
+              <span style="font-size:12px;color:rgba(255,255,255,0.5);">اضغط لمسح كرت حاج</span>
+            </div>
+            <div class="smsg" id="smsg">الكاميرا جاهزة — اضغط لكل كرت</div>
+            <button class="end-btn" onclick="endScan()">
+              <i class="ti ti-check" aria-hidden="true"></i> إنهاء المسح
+            </button>
+          </div>
+          <button class="skip-opt" id="skip-hajj-btn" onclick="skipHajj()" style="display:none;margin-top:8px;">
+            <i class="ti ti-forward-skip" style="font-size:13px;" aria-hidden="true"></i>
+            تخطي — اختياري
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <div class="status-row" id="status-row"></div>
+      <button class="submit-btn" id="bsub" onclick="showConfirm()" disabled>
+        <i class="ti ti-rocket" aria-hidden="true"></i> تسجيل الوصول
+      </button>
+    </div>
+  </div>
+
+  <div class="pg" id="sc-confirm">
+    <div class="body">
+      <div class="cf-box">
+        <div class="cf-t"><i class="ti ti-circle-check" style="color:#0F6E56;font-size:18px;" aria-hidden="true"></i>مراجعة وتأكيد الوصول</div>
+        <div id="cfwarn" style="display:none;"><div class="cf-warn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span id="cfwt">—</span></div></div>
+        <div class="cf-rows" id="cfrows"></div>
+        <button class="btn-cf" onclick="doSub()"><i class="ti ti-check" aria-hidden="true"></i> تأكيد تسجيل الوصول</button>
+      </div>
+      <div class="back-l"><button onclick="closeConfirm()">← تعديل</button></div>
+    </div>
+  </div>
+
+  <div class="pg" id="sc-success">
+    <div class="body">
+      <div class="scard">
+        <div class="sico"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
+        <div class="stit">تم تسجيل الوصول</div>
+        <div class="smeta" id="smeta">—</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:13px;color:var(--color-text-secondary);">الدور رقم:</span>
+          <span class="cyc-b" id="cyc">1</span>
+        </div>
+        <div style="width:100%;display:flex;flex-direction:column;gap:0;margin-top:6px;">
+          <button class="bgrn" onclick="reset()"><i class="ti ti-plus" aria-hidden="true"></i> استقبال حافلة أخرى</button>
+          <button class="bsec" onclick="showSum()"><i class="ti ti-chart-bar" aria-hidden="true"></i> ملخص المركز</button>
+          <button class="bsec" onclick="goLogout()"><i class="ti ti-logout" aria-hidden="true"></i> تسجيل الخروج</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sc-sum" style="display:none;">
+  <div class="topbar">
+    <button class="tb-btn" onclick="hideSum()" aria-label="رجوع"><i class="ti ti-arrow-right" aria-hidden="true"></i></button>
+    <h1>ملخص المركز</h1><span class="role-tag">مشرف المسار</span>
+  </div>
+  <div class="sp">
+    <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);">الرفادة 2 — تروية مكة - منى</div>
+    <div class="sg">
+      <div class="sc2"><div class="n" id="smd">0</div><div class="l">رد مكتمل</div></div>
+      <div class="sc2"><div class="n">9</div><div class="l">مستهدف</div></div>
+      <div class="sc2"><div class="n" id="smp">0</div><div class="l">حاج وصل</div></div>
+      <div class="sc2"><div class="n" id="sma">—</div><div class="l">دقيقة متوسط</div></div>
+    </div>
+    <div class="pw">
+      <div class="pl"><span class="pln">نسبة الإنجاز</span><span class="plp" id="smpc">0%</span></div>
+      <div class="pt"><div class="pf" id="smb" style="width:0%"></div></div>
+      <div class="ps2" id="smsb">0 من 9 ردود مكتملة</div>
+    </div>
+    <div class="avg-box">
+      <div style="font-size:12px;color:var(--color-text-secondary);"><i class="ti ti-clock" style="font-size:13px;margin-left:5px;" aria-hidden="true"></i>متوسط زمن التوصيل</div>
+      <div style="display:flex;align-items:baseline;gap:4px;"><span style="font-size:18px;font-weight:500;color:var(--color-text-primary);" id="sma2">—</span><span style="font-size:11px;color:var(--color-text-secondary);">دقيقة</span></div>
+    </div>
+    <div class="rlbl">سجل الردود</div>
+    <div id="hl" style="display:flex;flex-direction:column;gap:6px;"></div>
+    <button class="bsec" onclick="hideSum()"><i class="ti ti-arrow-right" aria-hidden="true"></i> العودة للاستقبال</button>
+  </div>
+</div>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXjChSOJ0989G1vlc_NFT3ZV0LhIbNE1oV-vshx67v5QHQ9eqXkn26QzxHkjV2GG-Kjw/exec";
+function callScript(action,payload={}){return new Promise(resolve=>{try{google.script.run.withSuccessHandler(r=>resolve(typeof r==="string"?JSON.parse(r):r)).withFailureHandler(err=>{if(action.startsWith("submit")){saveOffline(action,payload);resolve({success:true,offline:true});}else resolve({success:false,error:err.message||String(err)});}).handleAction(action,JSON.stringify(payload));}catch(e){resolve({success:false,error:e.message});}});}
+function saveOffline(type,payload){const q=JSON.parse(localStorage.getItem("mq")||"[]");q.push({type:type.replace("submit","").toLowerCase(),payload,ts:Date.now()});localStorage.setItem("mq",JSON.stringify(q));}
+async function syncQ(){const q=JSON.parse(localStorage.getItem("mq")||"[]");if(!q.length)return;const r=await callScript("submitBatch",{items:q});if(r.success){localStorage.removeItem("mq");toast("✓ مُزامَن "+q.length+" عنصر","tok");}}
+window.addEventListener("online",syncQ);
+window.addEventListener("offline",()=>toast("غير متصل — البيانات محفوظة محلياً","twarn"));
+let CUR=JSON.parse(sessionStorage.getItem("mashir_user")||"null");
+let SEASON=parseInt(sessionStorage.getItem("mashir_season")||"1");
+let PHASE=JSON.parse(sessionStorage.getItem("mashir_phase")||"null");
+let ALL_PHASES=JSON.parse(sessionStorage.getItem("mashir_phases")||"[]");
+let MCFG=JSON.parse(sessionStorage.getItem("mashir_cfg")||'{"bus_scan":true,"driver_scan":false,"guide_scan":true,"pilgrim_count":true}');
+function toast(msg,type){
+  const div=document.createElement("div");
+  const ok=type==="tok"||type==="ok";
+  div.style.cssText="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;padding:8px 14px;border-radius:30px;font-size:12px;box-shadow:0 2px 12px rgba(0,0,0,.2);display:flex;align-items:center;gap:6px;";
+  div.style.background=ok?"#0F6E56":"#7c3a00";
+  div.style.color="#fff";
+  div.innerHTML=(ok?'<i class="ti ti-check"></i>':'<i class="ti ti-alert-triangle"></i>')+msg;
+  document.body.appendChild(div);
+  setTimeout(()=>div.remove(),2500);
+}
+function goLogout(){sessionStorage.clear();window.top.location.href=SCRIPT_URL;}
+
+const SERVICE_CONFIG={
+  bus_scan:            {required:true,  label:"الحافلة"},
+  driver_scan:         {required:false, label:"السائق"},
+  guide_scan:          {required:true,  label:"المرشد"},
+  pilgrim_count:       {required:true,  label:"الحاج"},
+  strict_driver_lookup:{strict:false, label:"التحقق الصارم للسائق"},
+  strict_guide_lookup: {strict:false, label:"التحقق الصارم للمرشد"},
+};
+
+const TABS=[
+  {key:"bus",  icon:"ti-bus",           label:"الحافلة"},
+  {key:"drv",  icon:"ti-steering-wheel",label:"السائق"},
+  {key:"gde",  icon:"ti-user-check",    label:"المرشد"},
+  {key:"hajj", icon:"ti-users",         label:"الحاج"},
+];
+
+const CFG_MAP={bus:"bus_scan",drv:"driver_scan",gde:"guide_scan",hajj:"pilgrim_count"};
+
+const BUSES=[
+  {form:"673459120",op:"6065",co:"دلة لنقل الحجاج",comp:0,reg:true,ctr:2,scraped:true},
+  {form:"673459121",op:"6066",co:"مواكب الخير",comp:5,reg:true,ctr:2,scraped:true},
+  {form:"673459999",op:"",co:"",comp:0,reg:false,ctr:0,scraped:false},
+  {form:"673459122",op:"6067",co:"ربا الحجاز",comp:0,reg:true,ctr:7,scraped:true},
+];
+const DRVS=[{name:"بلال محمد علي",permit:"447070106156319",nat:"ميانمار"}];
+const GDES=[{name:"عمر محمد سيت",permit:"447070106156318",co:"الرفادة لخدمات الحجاج"}];
+const COS=[[8,"دله لنقل الحجاج"],[15,"مواكب الخير للنقل"],[32,"ربا الحجاز الفندقية"],[5925,"افاج العالمية"],[5933,"بوابة السفر"],[323754,"منازل المختارة"]];
+let UID_CTR=2,UCNAME="الرفادة 2",TARGET=9;
+
+let bs=0,ds=0,gs=0,hs=0;
+let bok=false,dok=false,gok=false,gskip=false,dskip=false,hskip=false;
+let coid=null,conm="",warns=[];
+let scanned=new Set(),off=0,ext=0;
+let tdone=0,tpilg=0,durs=[],hist=[];
+let curTab="bus";
+
+function isReq(cfgKey){return SERVICE_CONFIG[cfgKey]?.required===true;}
+function isDone(tab){
+  if(tab==="bus") return bok;
+  if(tab==="drv") return dok||dskip;
+  if(tab==="gde") return gok||gskip;
+  if(tab==="hajj") return off>0||hskip;
+  return false;
+}
+function isComplete(){
+  return TABS.every(t=>{
+    const cfgKey=CFG_MAP[t.key];
+    if(!isReq(cfgKey)) return true;
+    return isDone(t.key);
+  });
+}
+
+function buildCfgBar(){
+  const bar=document.getElementById("cfg-bar");
+  bar.innerHTML='<span class="cfg-lbl">مستوى الخدمة:</span>'+
+    Object.entries(SERVICE_CONFIG).map(([k,v])=>
+      `<span class="cfg-chip ${v.required?"cfg-req":"cfg-opt}"}">
+        <i class="ti ${v.required?"ti-lock":"ti-lock-open"}" style="font-size:10px;" aria-hidden="true"></i>
+        ${v.label}
+      </span>`
+    ).join("");
+}
+
+function buildTabs(){
+  const bar=document.getElementById("tab-bar");
+  bar.innerHTML=TABS.map(t=>{
+    const cfgKey=CFG_MAP[t.key];
+    const req=isReq(cfgKey);
+    const sublbl=req?'<div class="tab-req">إلزامي</div>':'<div class="tab-opt">اختياري</div>';
+    return`<div class="tab${t.key==="bus"?" active":""}" id="tb-${t.key}" onclick="openTab('${t.key}')">
+      <div class="tab-icon"><i class="ti ${t.icon}" aria-hidden="true"></i></div>
+      <div class="tab-lbl">${t.label}</div>
+      ${sublbl}
+      <div class="tab-dot"></div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("drv-hdr").innerHTML=
+    `<i class="ti ti-steering-wheel" aria-hidden="true"></i> السائق `+
+    (isReq("driver_scan")?'<span class="req-badge">إلزامي</span>':'<span class="opt-badge">اختياري</span>');
+  document.getElementById("gde-hdr").innerHTML=
+    `<i class="ti ti-user-check" aria-hidden="true"></i> المرشد `+
+    (isReq("guide_scan")?'<span class="req-badge">إلزامي</span>':'<span class="opt-badge">اختياري</span>');
+  document.getElementById("hajj-hdr").innerHTML=
+    `<i class="ti ti-users" aria-hidden="true"></i> الحاج `+
+    (isReq("pilgrim_count")?'<span class="req-badge">إلزامي</span>':'<span class="opt-badge">اختياري</span>');
+
+  if(!isReq("driver_scan")) document.getElementById("skip-drv-btn").style.display="flex";
+  document.getElementById("ml-drv").style.display="flex";
+  document.getElementById("ml-gde").style.display="flex";
+  if(!isReq("guide_scan")){
+    document.getElementById("skip-gde-lbl").textContent="تخطي — اختياري";
+  }
+  if(!isReq("pilgrim_count")) document.getElementById("skip-hajj-btn").style.display="flex";
+}
+
+function openTab(t){
+  curTab=t;
+  document.querySelectorAll(".tab").forEach(el=>el.classList.remove("active"));
+  ["tab-bus","tab-drv","tab-gde","tab-hajj"].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.classList.remove("on");
+  });
+  document.getElementById("tb-"+t)?.classList.add("active");
+  document.getElementById("tab-"+t)?.classList.add("on");
+  document.getElementById("ptitle").textContent={bus:"الحافلة",drv:"السائق",gde:"المرشد",hajj:"الحاج"}[t];
+}
+
+function updStatus(){
+  const chips=TABS.map(t=>{
+    const cfgKey=CFG_MAP[t.key];
+    const req=isReq(cfgKey);
+    const done=isDone(t.key);
+    const isWarn=(t.key==="gde"&&gskip)||(t.key==="drv"&&dskip)||(t.key==="hajj"&&hskip);
+    const el=document.getElementById("tb-"+t.key);
+    if(el){
+      el.className="tab"+(curTab===t.key?" active":"");
+      if(isWarn) el.classList.add("warn-tab");
+      else if(done) el.classList.add("done");
+      else if(!req) el.classList.add("optional-tab");
+    }
+    if(isWarn) return`<span class="st-chip st-warn"><i class="ti ti-alert-triangle" style="font-size:10px;" aria-hidden="true"></i>${t.label}</span>`;
+    if(done) return`<span class="st-chip st-ok"><i class="ti ti-check" style="font-size:10px;" aria-hidden="true"></i>${t.label}</span>`;
+    if(!req) return`<span class="st-chip st-skip"><i class="ti ti-minus" style="font-size:10px;" aria-hidden="true"></i>${t.label}</span>`;
+    return`<span class="st-chip st-pend"><i class="ti ti-circle" style="font-size:10px;" aria-hidden="true"></i>${t.label}</span>`;
+  });
+  document.getElementById("status-row").innerHTML=chips.join("");
+  document.getElementById("bsub").disabled=!isComplete();
+}
+
+function initGPS(){
+  if(!navigator.geolocation){setG("warn","GPS غير مدعوم","—");return;}
+  navigator.geolocation.getCurrentPosition(
+    p=>setG("ok",UCNAME,p.coords.latitude.toFixed(4)+"، "+p.coords.longitude.toFixed(4)),
+    ()=>setG("warn","تعذّر تحديد الموقع","يرجى تفعيل GPS")
+  );
+}
+function setG(s,n,sub){
+  const r=document.getElementById("grow"),ic=document.getElementById("gic");
+  document.getElementById("gnm").textContent=n;document.getElementById("gsb").textContent=sub;
+  r.className="gps-r "+{ok:"g-ok",warn:"g-warn"}[s];
+  ic.className={ok:"ti ti-circle-check",warn:"ti ti-alert-triangle"}[s];
+}
+
+let _scanBusBusy=false;
+const _personCache={};
+const _busCache={};
+async function _getPersonCached(permit){
+  if(_personCache[permit]) return _personCache[permit];
+  const r=await callScript("getPersonByPermit",{permitNum:permit});
+  if(r.success&&r.found) _personCache[permit]=r;
+  return r;
+}
+async function _getBusCached(form){
+  if(_busCache[form]) return _busCache[form];
+  const r=await callScript("getBusWithCompany",{formNum:form});
+  if(r.success&&r.found) _busCache[form]=r;
+  return r;
+}
+async function scanBus(){
+  if(_scanBusBusy)return;_scanBusBusy=true;
+  const b=BUSES[bs%BUSES.length];bs++;warns=warns.filter(w=>!w.includes("بلاغ"));
+  const al=document.getElementById("a1");al.innerHTML="";al.style.display="none";
+  const bData=await _getBusCached(b.form);
+  if(bData.success&&bData.found){
+    const bd=bData.bus;
+    b.reg=true;
+    b.ctr=parseInt(bd.assigned_center||b.ctr)||0;
+    b.op=bd.operation_num||b.op;
+    b.co=bd.company_name||b.co;
+    b.comp=parseInt(bd.complaints_count)||0;
+    b.bus_id=bd.bus_id;
+    b.company_id=bd.company_id;
+    b.official_capacity=parseInt(bd.official_capacity)||47;
+  }
+  if(!bData.success||!bData.found){
+    al.innerHTML=`<div class="alt aerr"><i class="ti ti-alert-octagon" aria-hidden="true"></i><div><div style="font-weight:500;">حافلة غير مسجّلة</div><div>لم تُطلق من الجراج</div></div></div>`;
+    al.style.display="block";
+    document.getElementById("cam1").className="cam err";
+    document.getElementById("cam1").innerHTML='<i class="ti ti-ban" style="font-size:30px;color:#F09595;" aria-hidden="true"></i><span style="color:#F09595;font-size:12px;">غير مسجّلة</span>';
+    bok=false;updStatus();return;
+  }
+  if(b.ctr&&parseInt(b.ctr)!==0&&parseInt(b.ctr)!==parseInt(UID_CTR)&&parseInt(UID_CTR)!==0){
+    al.innerHTML=`<div class="alt aerr"><i class="ti ti-alert-octagon" aria-hidden="true"></i><div><div style="font-weight:500;">مخصصة لمركز آخر رقم ${b.ctr}</div><div>مركزك: ${_curCtr} — غير مصرح باستلامها هنا</div></div></div>`;
+    al.style.display="block";
+    document.getElementById("cam1").className="cam err";
+    document.getElementById("cam1").innerHTML=`<i class="ti ti-ban" style="font-size:30px;color:#F09595;" aria-hidden="true"></i><span style="color:#F09595;font-size:12px;">مركز خاطئ ${b.ctr}</span>`;
+    bok=false;updStatus();return;
+  }
+  if(b.comp>=3){warns.push("الحافلة لديها "+b.comp+" بلاغات");al.innerHTML=`<div class="alt awrn"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>لديها ${b.comp} بلاغات في المنصة</span></div>`;al.style.display="block";}
+  document.getElementById("cam1").className="cam ok";
+  document.getElementById("cam1").innerHTML=`<i class="ti ti-circle-check" style="font-size:30px;color:#5DCAA5;" aria-hidden="true"></i><span style="color:#5DCAA5;font-size:12px;">تم — ${b.form}</span>`;
+  document.getElementById("r1f").textContent=b.form;
+  if(b.scraped){document.getElementById("r1o").textContent=b.op;document.getElementById("r1c").textContent=b.co;}
+  else{document.getElementById("r1or").style.display="none";document.getElementById("r1cr").style.display="none";}
+  document.getElementById("r1ctr").textContent="مركز "+UCNAME+" ✓";
+  window._busData=b;
+  document.getElementById("r1").style.display="block";document.getElementById("ml1").style.display="none";
+  bok=true;updStatus();_scanBusBusy=false;
+}
+
+function toMan(){document.getElementById("man1").style.display="block";document.getElementById("cam1").style.display="none";document.getElementById("ml1").style.display="none";}
+function toQR(){document.getElementById("man1").style.display="none";document.getElementById("cam1").style.display="flex";document.getElementById("ml1").style.display="flex";clco();document.getElementById("mop").value="";}
+function fco(){const q=document.getElementById("mco").value.trim(),dd=document.getElementById("codd");if(!q){dd.className="dd";return;}const m=COS.filter(c=>c[1].includes(q)).slice(0,5);dd.innerHTML=m.map(c=>`<div class="ddr" onclick="sco(${c[0]},'${c[1].replace(/'/g,"\\'")}')"><span>${c[1]}</span><span class="ddid">#${c[0]}</span></div>`).join("");dd.className=m.length?"dd on":"dd";}
+function odd(){if(document.getElementById("mco").value.trim())fco();}
+function sco(id,name){coid=id;conm=name;document.getElementById("mco").value="";document.getElementById("codd").className="dd";document.getElementById("coch").style.display="block";document.getElementById("coct").textContent=name;}
+function clco(){coid=null;conm="";const _c=document.getElementById("coch");if(_c)_c.style.display="none";const _m=document.getElementById("mco");if(_m)_m.value="";}
+function chkm(){return document.getElementById("mop").value.trim().length>0&&coid!==null;}
+function cfMan(){
+  if(!chkm())return;warns=warns.filter(w=>!w.includes("بلاغ"));
+  document.getElementById("r1f").textContent="يدوي";
+  document.getElementById("r1o").textContent=document.getElementById("mop").value.trim();
+  document.getElementById("r1c").textContent=conm;
+  document.getElementById("r1or").style.display="flex";document.getElementById("r1cr").style.display="flex";
+  document.getElementById("r1ctr").textContent="مركز "+UCNAME+" ✓";
+  document.getElementById("r1").style.display="block";
+  document.getElementById("man1").style.display="none";document.getElementById("cam1").style.display="none";
+  bok=true;updStatus();
+}
+
+function extractFromQrUrl(url) {
+  if(!url) return {identity:"", guideId:""};
+  const cleanUrl = url.replace(/^[^h]*(https?:\/\/transporticonline\.com)/,"https://transporticonline.com");
+  const identity = (cleanUrl.match(/identity=(\d+)/)||[])[1]||"";
+  const guideId  = (cleanUrl.match(/guideId=(\d+)/)||[])[1]||"";
+  return {identity, guideId, cleanUrl};
+}
+
+function clearManualResult(){const r=document.getElementById("man1-result");if(r){r.style.display="none";r.innerHTML="";}}
+
+async function manualSearch(){
+  const opNum=document.getElementById("mop").value.trim();
+  if(!opNum){toast("الرجاء إدخال رقم التشغيل","twarn");return;}
+  const resultEl=document.getElementById("man1-result");
+  if(!resultEl)return;
+  resultEl.style.display="block";
+  resultEl.innerHTML='<i class="ti ti-loader-2" style="animation:spin 0.8s linear infinite;margin-left:4px;"></i> جاري البحث...';
+  const res=await callScript("getBusReleaseEvent",{operation_num:opNum,season_id:SEASON});
+  if(!res||!res.success||!res.found){
+    resultEl.innerHTML='<span style="color:var(--color-text-danger);">⚠️ لم تُطلق حافلة برقم تشغيل '+opNum+' من الجراج</span>';
+    bok=false;updStatus();return;
+  }
+  if(res.duplicates&&res.candidates){
+    let html='<div style="font-size:11px;font-weight:600;margin-bottom:6px;">تكرار — اختر الحافلة:</div>';
+    res.candidates.forEach((c,i)=>{
+      html+=`<label style="display:flex;align-items:center;gap:8px;padding:8px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:8px;margin-bottom:6px;cursor:pointer;font-size:12px;"><input type="radio" name="bus_dup" value="${i}" style="accent-color:#0F6E56;width:16px;height:16px;" onchange="window._dupSelected=${i}"/><span><b>${c.company_name||'—'}</b><br><span style="font-size:11px;color:var(--color-text-secondary);">مركز ${c.center_operational_num} · ${c.form_num||'—'}</span></span></label>`;
+    });
+    html+='<button onclick="confirmDuplicate()" style="width:100%;padding:9px;background:#0F6E56;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;">تأكيد الاختيار</button>';
+    resultEl.innerHTML=html;
+    window._dupCandidates=res.candidates;window._dupSelected=null;
+    return;
+  }
+  const ev=res.event;
+  const assignedCenter=String(ev.center_operational_num||"");
+  const myCenter=String(UID_CTR);
+  if(assignedCenter&&assignedCenter!==myCenter&&assignedCenter!=="0"){
+    if(!confirm('⚠️ الحافلة مخصصة للمركز '+assignedCenter+'\nمركزك: '+UCNAME+'\nقبول كطارئ؟')){bok=false;updStatus();resultEl.style.display="none";return;}
+    warns.push('حافلة من مركز '+assignedCenter+' — طارئ');
+    callScript("sendAlert",{alertType:"wrong_center_bus",alertDesc:'حافلة '+ev.form_num+' استُلمت في '+UCNAME,centerId:myCenter,formNum:ev.form_num,severity:"warning",userId:CUR?.user_id,seasonId:SEASON});
+  }
+  document.getElementById("r1f").textContent=ev.form_num||"...";
+  document.getElementById("r1o").textContent=ev.operation_num||"";
+  document.getElementById("r1c").textContent=res.company_name||"";
+  document.getElementById("r1ctr").textContent='مركز '+assignedCenter+' – '+(res.center_name||"");
+  document.getElementById("r1").style.display="block";
+  document.getElementById("man1").style.display="none";
+  document.getElementById("cam1").style.display="none";
+  resultEl.style.display="none";
+  window._busData=ev;bok=true;updStatus();
+}
+
+function confirmDuplicate(){
+  if(window._dupSelected===null||window._dupSelected===undefined){toast("الرجاء اختيار حافلة","twarn");return;}
+  const c=window._dupCandidates[window._dupSelected];
+  if(!c)return;
+  document.getElementById("r1f").textContent=c.form_num||"يدوي";
+  document.getElementById("r1o").textContent=c.operation_num||"";
+  document.getElementById("r1c").textContent=c.company_name||"";
+  document.getElementById("r1ctr").textContent='مركز '+c.center_operational_num;
+  document.getElementById("r1").style.display="block";
+  document.getElementById("man1").style.display="none";
+  document.getElementById("cam1").style.display="none";
+  document.getElementById("man1-result").style.display="none";
+  window._busData=c;bok=true;updStatus();
+}
+
+let _scanDBusy=false;
+async function scanD(){
+  if(_scanDBusy)return;_scanDBusy=true;
+  const demo=DRVS[ds%DRVS.length];ds++;dskip=false;
+  const res=await _getPersonCached(demo.permit);
+  const p=res.success&&res.found?{
+    name:res.name_ar||demo.name,permit:res.permit_num||demo.permit,
+    nat:res.nationality||demo.nat,id:res.person_id,status:res.permit_status||"فعال",
+  }:demo;
+  document.getElementById("cam-d").className="cam ok";
+  document.getElementById("cam-d").style.background="#0a2e22";
+  document.getElementById("cam-d").innerHTML=`<i class="ti ti-circle-check" style="font-size:30px;color:#5DCAA5;" aria-hidden="true"></i><span style="color:#5DCAA5;font-size:12px;">${p.name}</span>`;
+  document.getElementById("d-name").textContent=p.name;
+  document.getElementById("d-permit").textContent=p.permit;
+  document.getElementById("d-nat").textContent=p.nat||"—";
+  document.getElementById("r-drv").style.display="block";
+  document.getElementById("skip-drv-btn").style.display="none";
+  document.getElementById("ml-drv").style.display="none";
+  window._driverData=p;
+  dok=true;updStatus();_scanDBusy=false;
+}
+
+function toDrvMan(){
+  document.getElementById("cam-d").style.display="none";
+  document.getElementById("ml-drv").style.display="none";
+  document.getElementById("man-drv").style.display="block";
+}
+function toDrvQR(){
+  document.getElementById("man-drv").style.display="none";
+  document.getElementById("cam-d").style.display="flex";
+  document.getElementById("ml-drv").style.display="flex";
+  document.getElementById("d-man-permit").value="";
+  document.getElementById("d-man-mobile").value="";
+}
+function chkDman(){
+  const v=document.getElementById("d-man-permit").value.trim();
+  return v.length===10&&(v[0]==="1"||v[0]==="2");
+}
+async function cfDman(){
+  const identity = document.getElementById("d-man-permit").value.trim();
+  const mobile   = document.getElementById("d-man-mobile").value.trim();
+  if(!identity) { toast("الرجاء إدخال رقم الهوية","twarn"); return; }
+  if(!mobile)   { toast("الرجاء إدخال رقم الهاتف","twarn"); return; }
+  
+  const res = await callScript("saveDriver", {
+    identity_number: identity,
+    mobile: mobile,
+    season_id: SEASON,
+    center_id: CUR?.current_center_id || ""
+  });
+  
+  if(!res.success){
+    toast("فشل حفظ السائق: "+res.error, "twarn");
+    return;
+  }
+  
+  let driverName = "سائق";
+  if(res.action === "updated") driverName = "سائق (تم تحديث الهاتف)";
+  document.getElementById("d-name").textContent = driverName;
+  document.getElementById("d-permit").textContent = identity;
+  document.getElementById("d-nat").textContent = res.driver?.nationality || "—";
+  document.getElementById("r-drv").style.display = "block";
+  document.getElementById("man-drv").style.display = "none";
+  document.getElementById("skip-drv-btn").style.display = "none";
+  document.getElementById("ml-drv").style.display = "none";
+  
+  window._driverData = { id: identity, permit: identity, name: driverName, mobile: mobile };
+  dskip = false;
+  dok = true;
+  updStatus();
+  toast(res.action === "inserted" ? "✓ تم تسجيل السائق" : "✓ تم تحديث رقم هاتف السائق", "tok");
+}
+
+function toGdeMan(){
+  document.getElementById("cam-g").style.display="none";
+  document.getElementById("ml-gde").style.display="none";
+  document.getElementById("man-gde").style.display="block";
+}
+function toGdeQR(){
+  document.getElementById("man-gde").style.display="none";
+  document.getElementById("cam-g").style.display="flex";
+  document.getElementById("ml-gde").style.display="flex";
+  document.getElementById("g-man-permit").value="";
+}
+function chkGman(){
+  const v=document.getElementById("g-man-permit").value.trim();
+  return v.length===10&&(v[0]==="1"||v[0]==="2");
+}
+async function cfGman(){
+  const permit=document.getElementById("g-man-permit").value.trim();
+  if(!permit)return;
+  if(!chkGman()){alert("رقم الهوية يجب أن يكون 10 أرقام ويبدأ بـ 1 أو 2");return;}
+  const res=await callScript("getPersonByPermit",{permitNum:permit});
+  if(!res.success||!res.found){
+    if(SERVICE_CONFIG.strict_guide_lookup.strict){
+      alert("⚠️ المرشد برقم الهوية "+permit+" غير مسجّل في النظام\nلا يمكن التسجيل في وضع التحقق الصارم");
+      return;
+    }
+    const p={name:"غير مسجّل — "+permit,permit:permit,co:"—",id:"",status:"غير مسجّل"};
+    document.getElementById("g-name").textContent=p.name;
+    document.getElementById("g-permit").textContent=permit;
+    document.getElementById("g-co").textContent="—";
+    document.getElementById("r-gde").style.display="block";
+    document.getElementById("man-gde").style.display="none";
+    document.getElementById("skip-g-row").style.display="none";
+    document.getElementById("edit-g-row").style.display="none";
+    window._guideData=p;
+    warns=warns.filter(w=>!w.startsWith("مرشد غير مسجّل"));warns.push("مرشد غير مسجّل: "+permit);
+    gskip=false;gok=true;
+    warns=warns.filter(w=>w.includes("غير مسجّل")||!w.includes("مرشد"));updStatus();return;
+  }
+  const p={name:res.name_ar||"—",permit:res.permit_num||permit,
+    co:res.company||"—",id:res.person_id,status:res.permit_status||"فعال"};
+  document.getElementById("g-name").textContent=p.name;
+  document.getElementById("g-permit").textContent=p.permit;
+  document.getElementById("g-co").textContent=p.co;
+  document.getElementById("r-gde").style.display="block";
+  document.getElementById("man-gde").style.display="none";
+  document.getElementById("skip-g-row").style.display="none";
+  document.getElementById("edit-g-row").style.display="none";
+  window._guideData=p;
+  gskip=false;gok=true;
+  warns=warns.filter(w=>!w.includes("مرشد"));updStatus();
+}
+
+function skipDrv(){
+  dskip=true;dok=false;
+  document.getElementById("cam-d").className="cam";document.getElementById("cam-d").style.background="#1a1200";
+  document.getElementById("cam-d").innerHTML='<i class="ti ti-forward-skip" style="font-size:30px;color:#FAC775;" aria-hidden="true"></i><span style="color:#FAC775;font-size:12px;">تم التخطي</span>';
+  document.getElementById("skip-drv-btn").style.display="none";
+  if(!warns.includes("تخطي السائق"))warns.push("تخطي السائق");
+  updStatus();
+}
+
+let _scanGBusy=false;
+async function scanG(){
+  if(_scanGBusy)return;_scanGBusy=true;
+  const demo=GDES[gs%GDES.length];gs++;gskip=false;
+  const qrData = demo.qr_url ? extractFromQrUrl(demo.qr_url) : {identity:demo.permit, guideId:""};
+  const permitToSearch = qrData.identity || demo.permit;
+  window._driverQrUrl = demo.qr_url||"";
+  window._driverIdRef = qrData.guideId||"";
+  const res=await callScript("getPersonByPermit",{permitNum:permitToSearch});
+  const p=res.success&&res.found ? {
+    name:   res.name_ar||demo.name,
+    permit: res.permit_num||demo.permit,
+    co:     res.company||demo.co,
+    id:     res.person_id,
+    status: res.permit_status||"فعال",
+    center_id: res.center_id||"",
+  } : demo;
+  document.getElementById("cam-g").className="cam ok";document.getElementById("cam-g").style.background="#0a2e22";
+  document.getElementById("cam-g").innerHTML=`<i class="ti ti-circle-check" style="font-size:30px;color:#5DCAA5;" aria-hidden="true"></i><span style="color:#5DCAA5;font-size:12px;">${p.name}</span>`;
+  document.getElementById("g-name").textContent=p.name;
+  document.getElementById("g-co").textContent=p.co||"—";
+  document.getElementById("g-permit").textContent=p.permit;
+  document.getElementById("r-gde").style.display="block";
+  document.getElementById("skip-g-row").style.display="none";document.getElementById("edit-g-row").style.display="none";
+  window._guideData=p;
+  gok=true;warns=warns.filter(w=>!w.includes("مرشد"));updStatus();_scanGBusy=false;
+}
+function skipG(){
+  gskip=true;gok=false;
+  document.getElementById("cam-g").className="cam";document.getElementById("cam-g").style.background="#1a1200";
+  document.getElementById("cam-g").innerHTML='<i class="ti ti-user-off" style="font-size:30px;color:#FAC775;" aria-hidden="true"></i><span style="color:#FAC775;font-size:12px;">بدون مرشد</span>';
+  document.getElementById("skip-g-row").style.display="none";document.getElementById("edit-g-row").style.display="block";
+  if(!warns.includes("تسجيل بدون مرشد"))warns.push("تسجيل بدون مرشد");
+  updStatus();
+}
+function editG(){
+  gskip=false;gok=false;
+  document.getElementById("cam-g").className="cam";document.getElementById("cam-g").style.background="#0d1f18";
+  document.getElementById("cam-g").innerHTML='<div class="cam-c tl"></div><div class="cam-c tr"></div><div class="cam-c bl"></div><div class="cam-c br"></div><div class="cam-ln"></div><i class="ti ti-scan" aria-hidden="true"></i><span>اضغط لمسح QR المرشد</span>';
+  document.getElementById("r-gde").style.display="none";
+  document.getElementById("skip-g-row").style.display="block";document.getElementById("edit-g-row").style.display="none";
+  warns=warns.filter(w=>!w.includes("مرشد"));updStatus();
+}
+
+function skipHajj(){
+  hskip=true;
+  document.getElementById("skip-hajj-btn").style.display="none";
+  if(!warns.includes("تخطي تسجيل الحجاج"))warns.push("تخطي تسجيل الحجاج");
+  updStatus();
+}
+
+function startScan(){document.getElementById("pidle").style.display="none";document.getElementById("pscan").className="scan-mode on";}
+function endScan(){
+  document.getElementById("pscan").className="scan-mode";document.getElementById("pidle").style.display="block";
+  const v=scanned.size||parseInt(document.getElementById("pman").value)||0;
+  document.getElementById("pman").value=v||"";updP();
+}
+function doScanH(){
+  const id="H"+(1000+hs++);
+  if(scanned.has(id)){document.getElementById("smsg").textContent="⚠️ تم مسح هذا الكرت مسبقاً";setTimeout(()=>document.getElementById("smsg").textContent="الكاميرا جاهزة — اضغط لكل كرت",1200);return;}
+  scanned.add(id);
+  const t=scanned.size;off=Math.min(t,47);ext=Math.max(0,t-47);
+  document.getElementById("sn-tot").textContent=t;document.getElementById("sn-off").textContent=off;document.getElementById("sn-ext").textContent=ext;
+  document.getElementById("pcount").textContent=t;document.getElementById("pman").value=t;
+  if(ext>0){document.getElementById("pextra").style.display="block";document.getElementById("pextra").textContent="⚠️ "+ext+" راكب إضافي";}
+  document.getElementById("smsg").textContent="✓ تم — اضغط للكرت التالي";
+  setTimeout(()=>document.getElementById("smsg").textContent="الكاميرا جاهزة — اضغط لكل كرت",700);
+  hskip=false;updStatus();
+}
+function adjP(d){const el=document.getElementById("pman");let v=parseInt(el.value)||0;v=Math.max(0,v+d);el.value=v?v:"";updP();}
+function updP(){
+  const v=parseInt(document.getElementById("pman").value)||0;
+  off=Math.min(v,47);ext=Math.max(0,v-47);hskip=false;
+  document.getElementById("pcount").textContent=v;
+  if(ext>0){document.getElementById("pextra").style.display="block";document.getElementById("pextra").textContent="⚠️ "+ext+" راكب إضافي";}
+  else document.getElementById("pextra").style.display="none";
+  updStatus();
+}
+
+function showConfirm(){
+  const t=new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
+  const rows=[
+    ["الحافلة",document.getElementById("r1f").textContent],
+    ["السائق",dskip?"تم التخطي":(document.getElementById("d-name").textContent||"—")],
+    ["المرشد",gskip?"غير مسجّل":(document.getElementById("g-name").textContent||"—")],
+    ["الحجاج",hskip?"تم التخطي":off+" راكب"+(ext>0?" + "+ext+" إضافي":"")],
+    ["المرحلة","تروية مكة - منى"],["المركز",UCNAME],["الوقت",t],
+  ];
+  document.getElementById("cfrows").innerHTML=rows.map(r=>`<div class="cfr"><span class="cl">${r[0]}</span><span class="cv">${r[1]}</span></div>`).join("");
+  if(warns.length){document.getElementById("cfwarn").style.display="block";document.getElementById("cfwt").textContent=warns.join(" | ");}
+  else document.getElementById("cfwarn").style.display="none";
+  document.getElementById("sc-form").style.display="none";
+  document.getElementById("sc-confirm").classList.add("on");
+  document.getElementById("ptitle").textContent="تأكيد الوصول";
+  document.getElementById("bbtn").style.display="flex";
+}
+function closeConfirm(){
+  document.getElementById("sc-confirm").classList.remove("on");
+  document.getElementById("sc-form").style.display="block";
+  document.getElementById("ptitle").textContent={bus:"الحافلة",drv:"السائق",gde:"المرشد",hajj:"الحاج"}[curTab];
+  document.getElementById("bbtn").style.display="none";
+}
+function goBack(){closeConfirm();}
+
+async function doSub(){
+  const t=new Date().toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});
+  const dur=Math.floor(45+Math.random()*30);durs.push(dur);
+  const avg=Math.round(durs.reduce((a,b)=>a+b,0)/durs.length);
+  const pilgCount=hskip?0:off;
+  const busD=window._busData||{};
+  const res=await callScript("submitArrival",{
+    user_id:             CUR?.user_id||"",
+    center_id:           CUR?.current_center_id||UID_CTR,
+    season_id:           SEASON,
+    form_num:            document.getElementById("r1f").textContent,
+    bus_id:              busD.bus_id||"",
+    operation_num:       busD.op||busD.operation_num||"",
+    operator_company_id: busD.company_id||"",
+    company_name:        busD.co||busD.company_name||"",
+    phase_id:            PHASE?.phase_id||"",
+    driver_id:           dskip?"":(window._driverData?.id||window._driverData?.permit||""),
+    guide_id:            gskip?"":(window._guideData?.id||window._guideData?.permit||""),
+    guide_qr_url:        window._guideQrUrl||"",
+    guide_id_ref:        window._guideIdRef||"",
+    guide_identity:      window._guideData?.permit||"",
+    driver_qr_url:       window._driverQrUrl||"",
+    driver_id_ref:       window._driverIdRef||"",
+    driver_identity:     window._driverData?.permit||"",
+    guide_skipped:       gskip,
+    pilgrim_count:       pilgCount,
+    pilgrim_official:    Math.min(pilgCount,47),
+    pilgrim_extra:       Math.max(0,pilgCount-47),
+    arrival_time:        new Date().toISOString(),
+    warnings:            warns,
+  });
+  if(!res.success){toast("خطأ: "+res.error,"twarn");return;}
+  tdone++;tpilg+=pilgCount;const pct=Math.round(tdone/TARGET*100);
+  hist.unshift({form:document.getElementById("r1f").textContent,drv:dskip?"—":(document.getElementById("d-name")?.textContent||"—"),gde:gskip?"بدون مرشد":(document.getElementById("g-name")?.textContent||"—"),pilg:pilgCount,time:t,extra:ext});
+  document.getElementById("cbd").textContent=tdone;
+  document.getElementById("cbp").textContent=tpilg;
+  document.getElementById("cbf").style.width=Math.min(pct,100)+"%";
+  document.getElementById("smeta").innerHTML=document.getElementById("r1f").textContent+"<br>"+pilgCount+" حاج | "+t+(ext>0?" | ⚠️ "+ext+" إضافي":"");
+  document.getElementById("sc-confirm").classList.remove("on");
+  document.getElementById("sc-form").style.display="none";
+  document.getElementById("sc-success").classList.add("on");
+  document.getElementById("ptitle").textContent="تم الوصول";
+  document.getElementById("bbtn").style.display="none";
+  toast("✓ تم تسجيل الوصول"+(res.offline?" (محفوظ)":""),"tok");
+}
+
+function reset(){
+  bok=false;dok=false;gok=false;gskip=false;dskip=false;hskip=false;warns=[];
+  bs=0;ds=0;gs=0;hs=0;scanned.clear();off=0;ext=0;coid=null;conm="";
+  ["cam1","cam-d","cam-g"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.className="cam";el.style.background="#0d1f18";el.style.display="flex";
+    const lbl={cam1:"اضغط لمسح QR الحافلة","cam-d":"اضغط لمسح QR السائق","cam-g":"اضغط لمسح QR المرشد"}[id];
+    el.innerHTML=`<div class="cam-c tl"></div><div class="cam-c tr"></div><div class="cam-c bl"></div><div class="cam-c br"></div><div class="cam-ln"></div><i class="ti ti-scan" aria-hidden="true"></i><span>${lbl}</span>`;
+  });
+  _scanBusBusy=false;_scanDBusy=false;_scanGBusy=false;
+  window._busData=null;window._driverData=null;window._guideData=null;
+  document.getElementById("a1").style.display="none";document.getElementById("r1").style.display="none";
+  document.getElementById("ml1").style.display="flex";document.getElementById("man1").style.display="none";
+  document.getElementById("r1or").style.display="flex";document.getElementById("r1cr").style.display="flex";
+  document.getElementById("r-drv").style.display="none";document.getElementById("r-gde").style.display="none";
+  document.getElementById("skip-g-row").style.display="block";document.getElementById("edit-g-row").style.display="none";
+  if(!isReq("driver_scan"))document.getElementById("skip-drv-btn").style.display="flex";
+  if(!isReq("pilgrim_count"))document.getElementById("skip-hajj-btn").style.display="flex";
+  document.getElementById("pcount").textContent="0";document.getElementById("pman").value="";
+  document.getElementById("pextra").style.display="none";
+  document.getElementById("sn-tot").textContent="0";document.getElementById("sn-off").textContent="0";document.getElementById("sn-ext").textContent="0";
+  document.getElementById("pidle").style.display="block";document.getElementById("pscan").className="scan-mode";
+  document.getElementById("sc-success").classList.remove("on");
+  document.getElementById("sc-form").style.display="block";
+  document.getElementById("ptitle").textContent="الحافلة";
+  document.getElementById("bbtn").style.display="none";
+  clco();document.getElementById("mop").value="";
+  document.getElementById("man-drv").style.display="none";
+  document.getElementById("man-gde").style.display="none";
+  document.getElementById("ml-drv").style.display="flex";
+  document.getElementById("ml-gde").style.display="flex";
+  if(document.getElementById("d-man-permit"))document.getElementById("d-man-permit").value="";
+  if(document.getElementById("d-man-mobile"))document.getElementById("d-man-mobile").value="";
+  if(document.getElementById("g-man-permit"))document.getElementById("g-man-permit").value="";
+  updStatus();openTab("bus");
+}
+
+function buildH(){
+  const hl=document.getElementById("hl");
+  if(!hist.length){hl.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);padding:6px;">لا يوجد سجل بعد</div>';return;}
+  hl.innerHTML=hist.map(h=>{const late=h.dur>h.avg*1.5;return`<div class="hi"><div class="hil"><div class="hb">${h.form} — ${h.pilg||"—"} حاج</div><div class="hs">${h.drv} | دور ${h.cycle}</div></div><div class="hir" style="text-align:left;"><div class="ht">${h.time}</div><div class="hd ${late?"hlate":"hok"}">${h.dur} دق ${late?"⚠️":"✓"}</div></div></div>`;}).join("");
+}
+function showSum(){buildH();document.getElementById("sc-main").style.display="none";document.getElementById("sc-sum").style.display="block";}
+function hideSum(){document.getElementById("sc-sum").style.display="none";document.getElementById("sc-main").style.display="block";}
+
+window.addEventListener("online",()=>{document.querySelector(".net-bar").style.cssText="display:flex;align-items:center;justify-content:center;gap:5px;padding:5px;font-size:11px;background:var(--color-background-success);color:var(--color-text-success);";});
+window.addEventListener("offline",()=>{document.querySelector(".net-bar").style.cssText="display:flex;align-items:center;justify-content:center;gap:5px;padding:5px;font-size:11px;background:var(--color-background-danger);color:var(--color-text-danger);";});
+document.addEventListener("click",e=>{const _d=document.getElementById("codd");if(_d&&!e.target.closest(".sw")&&!e.target.closest(".dd"))_d.className="dd";});
+
+buildCfgBar();buildTabs();updStatus();initGPS();
+
+(function initMonitor(){
+  if(!CUR){ window.top.location.href=SCRIPT_URL; return; }
+  const roleTag=document.querySelector(".role-tag");
+  if(roleTag) roleTag.textContent=CUR.name;
+  UID_CTR = parseInt(CUR.current_center_id||0);
+  UCNAME  = CUR.current_center_id ? "مركز "+CUR.current_center_id : "—";
+  const _cn=document.getElementById("center-name");if(_cn)_cn.textContent=UCNAME;
+  if(PHASE){
+    const el=document.getElementById("phase-lbl"); if(el) el.textContent=PHASE.phase_name||"—";
+  }
+  if(MCFG.driver_scan!==undefined)         SERVICE_CONFIG.driver_scan.required=MCFG.driver_scan;
+  if(MCFG.guide_scan!==undefined)          SERVICE_CONFIG.guide_scan.required=MCFG.guide_scan;
+  if(MCFG.pilgrim_count!==undefined)       SERVICE_CONFIG.pilgrim_count.required=MCFG.pilgrim_count;
+  if(MCFG.strict_driver_lookup!==undefined) SERVICE_CONFIG.strict_driver_lookup.strict=MCFG.strict_driver_lookup;
+  if(MCFG.strict_guide_lookup!==undefined)  SERVICE_CONFIG.strict_guide_lookup.strict=MCFG.strict_guide_lookup;
+
+  callScript("getActivePhases",{seasonId:SEASON}).then(ph=>{
+    if(ph.success&&ph.phases&&ph.phases.length){
+      PHASE = ph.phases[0];
+      ALL_PHASES = ph.phases;
+      sessionStorage.setItem("mashir_phase", JSON.stringify(ph.phases[0]));
+      sessionStorage.setItem("mashir_phases", JSON.stringify(ph.phases));
+      const el = document.querySelector(".phase-lbl");
+      if(el){
+        if(ph.has_overlap){
+          el.textContent = ph.phases.map(p=>p.phase_name).join(" + ");
+        } else {
+          el.textContent = ph.phases[0].phase_name||"—";
+        }
+      }
+    }
+  });
+  if(!MCFG || Object.keys(MCFG).length===0){
+    callScript("getServiceConfig",{seasonId:SEASON}).then(cf=>{
+      if(cf.success&&cf.config){
+        MCFG={...MCFG,...cf.config};
+        sessionStorage.setItem("mashir_cfg",JSON.stringify(MCFG));
+        if(typeof buildCfgBar==="function") buildCfgBar();
+        if(typeof buildTabs==="function") buildTabs();
+      }
+    });
+  }
+  buildCfgBar(); buildTabs(); updStatus(); initGPS();
+})();
+
+</script>
+</body>
+</html>
