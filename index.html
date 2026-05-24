@@ -270,28 +270,19 @@ function togPass(){
   document.getElementById("eye-ic").className="ti "+(passVis?"ti-eye-off":"ti-eye");
 }
 
-function callScript(action, payload = {}) {
-  return new Promise(resolve => {
-    try {
-      google.script.run
-        .withSuccessHandler(r => {
-          let result = r;
-          if (typeof r === "string") {
-            try { result = JSON.parse(r); } catch(e) { result = null; }
-          }
-          if (result === null || result === undefined) {
-            result = { success: false, error: "رد فارغ من الخادم" };
-          }
-          resolve(result);
-        })
-        .withFailureHandler(err => {
-          resolve({ success: false, error: err.message || "فشل الاتصال بالخادم" });
-        })
-        .handleAction(action, JSON.stringify(payload));
-    } catch (e) {
-      resolve({ success: false, error: e.message });
-    }
-  });
+async function callScript(action, payload = {}) {
+  try {
+    const response = await fetch(WEB_APP_URL, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: action, payload: payload })
+    });
+    return await response.json();
+  } catch (error) {
+    console.error("خطأ في الاتصال:", error);
+    return { success: false, data: [] };
+  }
 }
 
 function showErr(msg){
@@ -305,14 +296,18 @@ async function doLogin(){
   const pwV=document.getElementById("inp-pass").value.trim();
   if(idV.length<9||pwV.length<9){showErr("يرجى إدخال رقم الهوية ورقم الجوال كاملاً");return;}
   document.getElementById("loading").className="loading on";
-  const r=await callScript("login",{userId:idV,mobile:pwV});
+  
+  const r = await callScript("login",{userId:idV,mobile:pwV});
+  
   document.getElementById("loading").className="loading";
   if(!r.success){showErr(r.error||"بيانات غير صحيحة");return;}
+  
   sessionStorage.setItem("mashir_user",   JSON.stringify(r));
   sessionStorage.setItem("mashir_season", String(r.season_id||1));
   sessionStorage.setItem("mashir_phase",  "null");
   sessionStorage.setItem("mashir_phases", "[]");
   sessionStorage.setItem("mashir_cfg",    '{"bus_scan":true,"driver_scan":false,"guide_scan":true,"pilgrim_count":true}');
+  
   Promise.all([
     callScript("getServiceConfig",{seasonId:r.season_id||1}),
     callScript("getActivePhases",{seasonId:r.season_id||1}),
@@ -323,12 +318,18 @@ async function doLogin(){
       sessionStorage.setItem("mashir_phases", JSON.stringify(phR.phases));
     }
   });
+
   const pages={garage_admin:"garage",monitor:"monitor",road_monitor:"road",admin:"dashboard",management:"dashboard",supervisor:"dashboard"};
   const page=pages[r.role];
   if(!page){showErr("دور غير معروف: "+r.role);return;}
-  google.script.run
-    .withSuccessHandler(url=>window.location.href=url)
-    .getPageUrl(page);
+  
+  // استبدال استدعاء الحصول على الرابط بـ fetch مباشر أو توجيه ثابت
+  const urlR = await callScript("getPageUrl", { page: page });
+  if(urlR.success) {
+      window.location.href = urlR.url || (page + ".html");
+  } else {
+      window.location.href = page + ".html";
+  }
 }
 document.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
 </script>
