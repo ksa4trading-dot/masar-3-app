@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<title>مشير — الطريق</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css"/>
+<style>
+:root{
+  --green:#0F6E56;--green-mid:#1D9E75;--green-dark:#085041;
+  --blue:#1a5fa8;
+  --amber:#c47d0a;--amber-bg:#fef3dc;--amber-border:#f5d89e;--amber-text:#7a4b00;
+  --red:#A32D2D;--red-mid:#E24B4A;--red-bg:#fde8e8;--red-border:#f5c6c6;
+  --bg:#f5f5f7;--card:#ffffff;--bg2:#e8e8ed;--bg3:#f0f0f5;
+  --text:#1c1c1e;--text2:#6d6d72;--text3:#aeaeb2;
+  --border:#d1d1d6;--border2:#c7c7cc;
+  --ok-bg:#e8f5ee;--ok-border:#b2dfc8;--ok-text:#085041;
+  --warn-bg:#fef3dc;--warn-border:#f5d89e;--warn-text:#7a4b00;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif;
+  --r-sm:6px;--r-md:10px;--r-lg:14px;--r-xl:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0;direction:rtl;-webkit-tap-highlight-color:transparent;}
+html,body{font-family:var(--font);background:var(--bg);min-height:100vh;}
+.app{max-width:390px;margin:0 auto;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;}
+
+/* ── إخفاء الأجزاء المطلوبة ── */
+.sync-bar,
+.stats-strip {
+  display: none !important;
+}
+
+/* ── Topbar ── */
+.topbar{
+  background:var(--card);border-bottom:0.5px solid var(--border);
+  padding:12px 14px;display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:100;
+}
+.tb-ico{
+  width:34px;height:34px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--blue),#0f3d6e);
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:17px;flex-shrink:0;
+}
+.topbar h2{font-size:15px;font-weight:600;color:var(--text);flex:1;margin:0;}
+.ibtn{
+  background:var(--bg2);border:0.5px solid var(--border);
+  border-radius:var(--r-md);width:34px;height:34px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text2);font-size:16px;transition:all .15s;
+}
+.ibtn:hover{color:var(--text);border-color:var(--border2);}
+.role-chip{
+  font-size:10px;background:var(--ok-bg);border:0.5px solid var(--ok-border);
+  color:var(--ok-text);padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;
+}
+
+/* ── GPS pill ── */
+.gps-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;padding:6px 12px;border-radius:var(--r-md);
+  margin:10px 14px 4px;border:0.5px solid var(--border);
+}
+.gp-ok{background:var(--ok-bg);color:var(--ok-text);border-color:var(--ok-border);}
+.gp-warn{background:var(--warn-bg);color:var(--warn-text);border-color:var(--warn-border);}
+
+/* ── Screen 1 ── */
+.loc-list{padding:8px 14px 4px;}
+.road-lbl{
+  font-size:10px;color:var(--text3);font-weight:600;
+  letter-spacing:.6px;text-transform:uppercase;
+  padding:10px 0 6px;
+}
+.loc-row{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 14px;background:var(--card);
+  border:0.5px solid var(--border);border-radius:var(--r-lg);
+  margin-bottom:8px;cursor:pointer;transition:all .15s;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);
+}
+.loc-row:hover{border-color:var(--border2);}
+.loc-row.sel-in{border-color:var(--green);background:var(--ok-bg);}
+.loc-row.sel-out{border-color:var(--red-mid);background:var(--red-bg);}
+.lbul{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.bin{background:var(--green-mid);}.bout{background:var(--red-mid);}
+.li{flex:1;}
+.lname{font-size:14px;font-weight:600;color:var(--text);}
+.lroad{font-size:11px;color:var(--text2);margin-top:2px;}
+.lgps{font-size:11px;margin-top:3px;}
+.lgok{color:var(--ok-text);}.lgwarn{color:var(--amber-text);}
+.lbdg{
+  font-size:11px;padding:4px 10px;border-radius:20px;
+  font-weight:600;flex-shrink:0;
+}
+.lbin{background:var(--ok-bg);color:var(--ok-text);}
+.lbout{background:var(--red-bg);color:var(--red-mid);}
+
+/* ── Screen 2 ── */
+.s2-top{
+  background:var(--card);border-bottom:0.5px solid var(--border);
+  padding:12px 14px;display:flex;align-items:center;justify-content:space-between;
+}
+.s2-loc{font-size:13px;font-weight:600;color:var(--text);}
+.s2-meta{font-size:11px;color:var(--text3);margin-top:2px;}
+.ibtns{display:flex;gap:6px;}
+
+/* ── Counter zone ── */
+.counter-zone{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:5px;
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+  position:relative;overflow:hidden;min-height:260px;
+  border-bottom:0.5px solid var(--border);
+  transition:background .06s;
+}
+.counter-zone:active{background:var(--bg2) !important;}
+.zone-in{background:linear-gradient(180deg,var(--card) 55%,var(--ok-bg));}
+.zone-out{background:linear-gradient(180deg,var(--card) 55%,var(--red-bg));}
+.cdir{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;}
+.cdir-in{color:var(--green);}
+.cdir-out{color:var(--red-mid);}
+.cnum{
+  font-size:96px;font-weight:800;line-height:1;
+  color:var(--text);font-variant-numeric:tabular-nums;
+  transition:transform .06s;
+}
+.cnum.pop{transform:scale(1.08);}
+.cnum.undo-pop{transform:scale(.92);opacity:.7;}
+.cday-lbl{font-size:11px;color:var(--text3);margin-top:4px;}
+.cday{
+  position:absolute;top:12px;left:14px;
+  font-size:11px;color:var(--text3);
+}
+.ripple{
+  position:absolute;width:80px;height:80px;border-radius:50%;
+  opacity:0;transform:scale(.2);transition:opacity .4s,transform .4s;
+  background:var(--green);pointer-events:none;
+}
+.ripple.show{opacity:.15;transform:scale(2.5);}
+.pbar-wrap{padding:10px 14px;background:var(--card);border-top:0.5px solid var(--border);}
+.pbar{height:4px;background:var(--bg2);border-radius:2px;overflow:hidden;}
+.pfill{height:100%;width:0%;transition:width .5s linear;}
+.pf-in{background:var(--green-mid);}
+.pf-out{background:var(--red-mid);}
+.pbar-lbl{font-size:10px;color:var(--text3);margin-top:5px;text-align:center;}
+
+/* ── Overlays ── */
+.ov{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  display:none;align-items:flex-end;justify-content:center;z-index:200;
+}
+.ov.on{display:flex;}
+.sheet{
+  background:var(--card);border-radius:24px 24px 0 0;
+  padding:20px 20px 36px;width:100%;max-width:390px;
+  max-height:90vh;overflow-y:auto;
+}
+.sh-bar{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 14px;}
+.sh-ttl{font-size:16px;font-weight:600;color:var(--text);margin-bottom:14px;text-align:center;}
+.sh-grp{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;padding:12px 0 6px;}
+.sh-close{
+  width:100%;padding:13px;border-radius:var(--r-md);
+  background:var(--bg2);border:0.5px solid var(--border);
+  color:var(--text);font-size:13px;font-family:var(--font);
+  cursor:pointer;margin-top:16px;
+}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.sr:last-of-type{border-bottom:none;}
+.sl2{font-size:13px;font-weight:500;color:var(--text);}
+.ss2{font-size:11px;color:var(--text3);margin-top:2px;}
+.tog{
+  width:44px;height:26px;border-radius:13px;background:var(--bg2);
+  border:0.5px solid var(--border2);cursor:pointer;position:relative;transition:background .2s;
+}
+.tog.on{background:var(--green);}
+.tog::after{
+  content:"";position:absolute;top:3px;right:3px;
+  width:19px;height:19px;border-radius:50%;background:#fff;
+  box-shadow:0 1px 3px rgba(0,0,0,.15);transition:transform .2s;
+}
+.tog.on::after{transform:translateX(-18px);}
+.abtn{
+  padding:7px 14px;border-radius:var(--r-md);
+  background:var(--ok-bg);border:0.5px solid var(--ok-border);
+  color:var(--ok-text);font-size:12px;font-weight:500;font-family:var(--font);
+  cursor:pointer;white-space:nowrap;
+}
+.rbtn{
+  padding:7px 14px;border-radius:var(--r-md);
+  background:var(--red-bg);border:0.5px solid var(--red-border);
+  color:var(--red-mid);font-size:12px;font-weight:500;font-family:var(--font);
+  cursor:pointer;white-space:nowrap;
+}
+
+/* ── History entries ── */
+.hi{
+  background:var(--bg);border:0.5px solid var(--border);
+  border-radius:var(--r-md);padding:10px 12px;
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:6px;
+}
+.hn{font-size:13px;font-weight:600;color:var(--text);}
+.hs{font-size:11px;color:var(--text2);margin-top:2px;}
+.hc{font-size:20px;font-weight:700;color:var(--text);text-align:left;}
+.hsy{font-size:10px;color:var(--text3);text-align:left;}
+
+/* ── End session report ── */
+.end-sum{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+.er{display:flex;justify-content:space-between;padding:8px 0;border-bottom:0.5px solid var(--border);}
+.er:last-child{border-bottom:none;}
+.el{font-size:13px;color:var(--text2);}
+.ev{font-size:13px;font-weight:600;color:var(--text);}
+.end-btn{
+  width:100%;padding:13px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--green-mid),var(--green-dark));
+  border:none;color:#fff;font-size:13px;font-weight:600;font-family:var(--font);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-bottom:8px;
+}
+
+/* ── Modals ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;z-index:300;padding:20px;
+}
+.modal-bg.on{display:flex;}
+.mbox{
+  background:var(--card);border-radius:var(--r-xl);
+  padding:22px;width:100%;max-width:320px;
+}
+.mt{font-size:16px;font-weight:600;color:var(--text);margin-bottom:10px;text-align:center;}
+.ms{font-size:13px;color:var(--text2);text-align:center;line-height:1.6;margin-bottom:16px;white-space:pre-wrap;}
+.mbtns{display:flex;gap:10px;}
+.mc{
+  flex:1;padding:12px;border-radius:var(--r-md);
+  background:var(--bg2);border:0.5px solid var(--border);
+  color:var(--text);font-size:13px;font-family:var(--font);cursor:pointer;
+}
+.md{
+  flex:2;padding:12px;border-radius:var(--r-md);
+  background:linear-gradient(135deg,var(--green-mid),var(--green-dark));
+  border:none;color:#fff;font-size:13px;font-weight:600;font-family:var(--font);cursor:pointer;
+}
+
+.sync-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.55);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  display:none;align-items:center;justify-content:center;z-index:400;
+}
+.sync-modal.on{display:flex;}
+.sync-box{
+  background:rgba(255,255,255,.12);border:0.5px solid rgba(255,255,255,.2);
+  border-radius:20px;padding:28px 36px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.spin{
+  width:36px;height:36px;
+  border:2.5px solid rgba(255,255,255,.2);
+  border-top-color:#fff;border-radius:50%;
+  animation:sp .75s linear infinite;
+}
+@keyframes sp{to{transform:rotate(360deg);}}
+.sync-msg{font-size:15px;font-weight:600;color:#fff;}
+.sync-sub{font-size:12px;color:rgba(255,255,255,.7);}
+
+.rhint{margin-top:16px;text-align:center;}
+.rhint-main{font-size:13px;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px;}
+.rhint-main i{font-size:16px;}
+.rhint-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+
+.scr{display:none;flex-direction:column;flex:1;}
+.scr.on{display:flex;}
+
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  opacity:0;background:#1c1c1e;color:#fff;
+  font-size:13px;font-weight:500;padding:10px 20px;
+  border-radius:20px;white-space:nowrap;z-index:999;
+  transition:opacity .2s,transform .2s;pointer-events:none;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.tok{background:var(--green);}
+.toast.twarn{background:var(--amber);}
+.toast.tinf{background:var(--blue);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="scr on" id="s1">
+  <div class="topbar"><div class="tb-ico"><i class="ti ti-road" aria-hidden="true"></i></div>
+    <h2 id="ptitle">اختر نقطة العد</h2><span class="role-chip" id="utag">مندوب الطريق</span><button class="ibtn" onclick="goLogout()" aria-label="خروج"><i class="ti ti-logout" aria-hidden="true"></i></button>
+  </div>
+  <div class="gps-pill gp-warn" id="gbar">
+    <i class="ti ti-map-pin" aria-hidden="true"></i>
+    <span id="gtxt">جاري تحديد الموقع...</span>
+  </div>
+  <div class="loc-list" id="llist"></div>
+</div>
+
+<div class="scr" id="s2">
+  <div class="s2-top">
+    <div>
+      <div class="s2-loc" id="s2n">—</div>
+      <div class="s2-meta" id="s2m">—</div>
+    </div>
+    <div class="ibtns">
+      <button class="ibtn" onclick="openHist()" aria-label="السجل"><i class="ti ti-history" aria-hidden="true"></i></button>
+      <button class="ibtn" onclick="openSet()" aria-label="الإعدادات"><i class="ti ti-dots-vertical" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
+  <!-- تم إخفاء info-strip بناءً على طلب المستخدم (مع بقاء الكود) -->
+  <!-- <div class="info-strip">...</div> -->
+
+  <!-- تم إخفاء sync-bar و stats-strip بواسطة CSS، مع بقاء عناصر DOM -->
+  <div class="sync-bar">
+    <div style="display:flex;align-items:center;gap:7px;">
+      <div class="sdot pend" id="sdot"></div>
+      <span class="stxt" id="stxt">بانتظار المزامنة</span>
+    </div>
+    <span class="sdur" id="sdur">—</span>
+  </div>
+
+  <div class="counter-zone zone-in" id="czone" onclick="doTap()">
+    <div class="ripple" id="rpl"></div>
+    <div class="cdir cdir-in" id="cdir">↓ عد الداخل</div>
+    <div class="cnum" id="cnum">0</div>
+    <div class="cday-lbl" id="loc-total-lbl">إجمالي الموقع اليوم: <span id="loc-total">—</span></div>
+    <div class="cday" id="cday">0</div>
+    
+    <div class="rhint">
+      <div class="rhint-main"><i class="ti ti-hand-click" aria-hidden="true"></i><span>اضغط في أي مكان</span></div>
+      <div class="rhint-sub">اضغط مطوّلاً للتراجع</div>
+    </div>
+  </div>
+
+  <div class="stats-strip" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr;">
+    <div class="stat"><div class="sn" id="ss-s">0</div><div class="sl">الجلسة</div></div>
+    <div class="stat"><div class="sn" id="ss-p">0</div><div class="sl">الفترة</div></div>
+    <div class="stat"><div class="sn" id="ss-sv">0</div><div class="sl">مُزامَن</div></div>
+    <div class="stat"><div class="sn rate" id="ss-r">—</div><div class="sl">ح/د</div></div>
+    <div class="stat"><div class="sn" id="ss-onroad" style="color:#185FA5;">—</div><div class="sl">بالطريق</div></div>
+  </div>
+
+  <div class="pbar-wrap">
+    <div class="pbar"><div class="pfill pf-in" id="pfill"></div></div>
+    <div class="pbar-lbl" id="plbl">الفترة الحالية — تُحفظ كل دقيقتين تلقائياً</div>
+  </div>
+</div>
+
+</div>
+
+<div class="ov" id="ov-set">
+  <div class="sheet">
+    <div class="sh-bar"></div>
+    <div class="sh-ttl">الإعدادات</div>
+    <div class="sr"><div><div class="sl2">الاهتزاز عند الضغط</div><div class="ss2">اهتزاز خفيف لكل حافلة</div></div><button class="tog on" id="tv" onclick="tg('v')" aria-label="اهتزاز"></button></div>
+    <div class="sr"><div><div class="sl2">الصوت عند الضغط</div><div class="ss2">نبضة صوتية قصيرة</div></div><button class="tog off" id="ts" onclick="tg('s')" aria-label="صوت"></button></div>
+    <div class="sr"><div><div class="sl2">مزامنة تلقائية</div><div class="ss2">كل دقيقتين في الخلفية</div></div><button class="tog on" id="ta" onclick="tg('a')" aria-label="مزامنة تلقائية"></button></div>
+ 
+    <div class="sh-grp">الجلسة</div>
+    <div class="sr"><div><div class="sl2">تغيير الموقع</div><div class="ss2">يحفظ ويبدأ جلسة جديدة</div></div><button class="abtn" onclick="changeLoc()">تغيير</button></div>
+    <div class="sr"><div><div class="sl2">إنهاء الجلسة</div><div class="ss2">تقرير كامل ثم حفظ</div></div><button class="abtn" onclick="askEnd()">إنهاء</button></div>
+    <div class="sr"><div><div class="sl2">تصفير العداد</div><div class="ss2">يُزامن فوراً ثم يُصفّر</div></div><button class="rbtn" onclick="askReset()">تصفير</button></div>
+    <button class="sh-close" onclick="clov('ov-set')">إغلاق</button>
+  </div>
+</div>
+
+<div class="ov" id="ov-hist">
+  <div class="sheet">
+    <div class="sh-bar"></div>
+    <div class="sh-ttl">سجل الجلسات</div>
+    <div id="hbody"></div>
+    <button class="sh-close" onclick="clov('ov-hist')">إغلاق</button>
+  </div>
+</div>
+
+<div class="ov" id="ov-end">
+  <div class="sheet">
+    <div class="sh-bar"></div>
+    <div class="sh-ttl">تقرير الجلسة</div>
+    <div class="end-sum" id="end-sum"></div>
+    <button class="end-btn" id="end-btn" onclick="doEnd()">
+      <i class="ti ti-check" aria-hidden="true"></i> تأكيد الإنهاء والحفظ
+    </button>
+    <button class="sh-close" onclick="clov('ov-end')">العودة للعد</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="m-res">
+  <div class="mbox">
+    <div class="mt">تأكيد التصفير</div>
+    <div class="ms" id="m-sub">—</div>
+    <div class="mbtns">
+      <button class="mc" onclick="cmod('m-res')">إلغاء</button>
+      <button class="md" onclick="doReset()">تصفير</button>
+    </div>
+  </div>
+</div>
+
+<div class="sync-modal" id="m-sync">
+  <div class="sync-box">
+    <div class="spin"></div>
+    <div class="sync-msg" id="sync-msg">جاري المزامنة...</div>
+    <div class="sync-sub" id="sync-sub">يتم حفظ البيانات</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyXjChSOJ0989G1vlc_NFT3ZV0LhIbNE1oV-vshx67v5QHQ9eqXkn26QzxHkjV2GG-Kjw/exec";
+
+function callScript(action,payload={}){return new Promise(resolve=>{try{google.script.run.withSuccessHandler(r=>resolve(typeof r==="string"?JSON.parse(r):r)).withFailureHandler(err=>{if(action.startsWith("submit")){saveOffline(action,payload);resolve({success:true,offline:true});}else resolve({success:false,error:err.message||String(err)});}).handleAction(action,JSON.stringify(payload));}catch(e){resolve({success:false,error:e.message});}});}
+function saveOffline(type,payload){const q=JSON.parse(localStorage.getItem("mq")||"[]");q.push({type:type.replace("submit","").toLowerCase(),payload,ts:Date.now()});localStorage.setItem("mq",JSON.stringify(q));}
+async function syncQ(){const q=JSON.parse(localStorage.getItem("mq")||"[]");if(!q.length)return;const r=await callScript("submitBatch",{items:q});if(r.success){localStorage.removeItem("mq");toast("✓ مُزامَن "+q.length+" عنصر","tok");}}
+window.addEventListener("online",syncQ);
+window.addEventListener("offline",()=>toast("غير متصل","twarn"));
+
+let CUR=JSON.parse(sessionStorage.getItem("mashir_user")||"null");
+let SEASON=parseInt(sessionStorage.getItem("mashir_season")||"1");
+let PHASE=JSON.parse(sessionStorage.getItem("mashir_phase")||"null");
+let MCFG=JSON.parse(sessionStorage.getItem("mashir_cfg")||'{"bus_scan":true,"driver_scan":false,"guide_scan":true,"pilgrim_count":true}');
+function goLogout(){sessionStorage.clear();window.top.location.href=SCRIPT_URL;}
+
+let LOCS=[
+  {id:1,name:"مدخل مكة",  road:"طريق الملك عبدالعزيز",type:"in", lat:21.4204,lng:39.8986,r:300},
+  {id:2,name:"مخرج مكة",  road:"طريق الملك عبدالعزيز",type:"out",lat:21.4198,lng:39.8980,r:300},
+  {id:3,name:"مدخل منى",  road:"طريق المشاعر",         type:"in", lat:21.3609,lng:39.9864,r:300},
+  {id:4,name:"مخرج منى",  road:"طريق المشاعر",         type:"out",lat:21.3605,lng:39.9860,r:300},
+  {id:5,name:"مدخل عرفات",road:"طريق عرفات",            type:"in", lat:21.3547,lng:40.1768,r:300},
+  {id:6,name:"مخرج عرفات",road:"طريق عرفات",            type:"out",lat:21.3540,lng:40.1762,r:300},
+  {id:7,name:"مدخل المزدلفة",road:"طريق المزدلفة",     type:"in", lat:21.3800,lng:40.0700,r:300},
+  {id:8,name:"مخرج المزدلفة",road:"طريق المزدلفة",     type:"out",lat:21.3795,lng:40.0695,r:300},
+];
+const PERIOD_SEC=120;
+
+let cfg={v:true,s:false,sv:true,a:true};
+let pk=null,cur=null;
+let sc=0,dc=0,pc=0,svc=0,el=0,pnum=0;
+let sid=null,ss=null,pt=null,at=null,durT=null,rateT=null;
+let periodStart=null,lastTap=null,holdTimer=null;
+let hist=[];
+let ulat=null,ulng=null;
+
+function gd(a,b,c,d){const R=6371000,dL=(c-a)*Math.PI/180,dN=(d-b)*Math.PI/180,e=Math.sin(dL/2)**2+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dN/2)**2;return R*2*Math.atan2(Math.sqrt(e),Math.sqrt(1-e));}
+function ft(d){return d.toLocaleTimeString("ar-SA",{hour:"2-digit",minute:"2-digit"});}
+function fDur(s){const m=Math.floor(s/60);return m>0?m+" دقيقة":s+" ثانية";}
+
+// متغيرات السيرفر الرسمية
+let _serverIn = 0;
+let _serverOut = 0;
+
+/* ══ دالة التحديث الحديدية المقفلة لعملية الطرح والجمع ══ */
+function updateUIStats() {
+  if (!cur) return;
+  
+  // دمج الضغطات المحلية فوراً قبل حدوث المزامنة
+  let currentIn = _serverIn;
+  let currentOut = _serverOut;
+  
+  if (cur.type === "in") {
+    currentIn += pc; 
+  } else {
+    currentOut += pc; 
+  }
+  
+  // المعادلة الحتمية: داخل كلي - خارج كلي = على الطريق الآن (ثابتة في كل النقاط لتطابق الداشبورد)
+  let onrd = Math.max(0, currentIn - currentOut);
+  // تحديث العناصر المخفية (حتى لو كانت مخفية تبقى القيم محدثة)
+  const ssOnroad = document.getElementById("ss-onroad");
+  if (ssOnroad) ssOnroad.textContent = onrd;
+  
+  // حساب متوسط العبور
+  const rateElem = document.getElementById("ss-r");
+  const rate = rateElem ? parseFloat(rateElem.textContent) || 0 : 0;
+  const transit = rate > 0 ? Math.round(onrd / rate) : 0;
+  const transitElem = document.getElementById("i-transit");
+  if (transitElem) transitElem.textContent = transit > 0 ? transit + " د" : "—";
+  
+  // إجمالي الموقع اليوم: يعرض إجمالي الجهة الحالية فقط بدون أي طرح!
+  const totalToShow = cur.type === "in" ? currentIn : currentOut;
+  const locTotal = document.getElementById("loc-total");
+  if (locTotal) locTotal.textContent = totalToShow;
+}
+
+/* ══ جلب الإجماليات الحقيقية للموقع بالكامل ══ */
+async function fetchLocTotals(){
+  if(!cur) return;
+  try {
+    const r = await callScript("getRoadLocationTotals",{
+      location_id: cur.id,
+      season_id: SEASON,
+    });
+    if(r.success){
+      _serverIn  = r.total_in  || 0;
+      _serverOut = r.total_out || 0;
+      updateUIStats();
+    }
+  } catch(e){}
+}
+
+function initGPS(){
+  if(!navigator.geolocation){setgb(false,"GPS غير مدعوم");bld();return;}
+  navigator.geolocation.getCurrentPosition(
+    p=>{ulat=p.coords.latitude;ulng=p.coords.longitude;setgb(true,ulat.toFixed(4)+"، "+ulng.toFixed(4));bld();},
+    ()=>{setgb(false,"تعذّر تحديد الموقع");bld()}
+  );
+}
+function setgb(ok,t){
+  const gb = document.getElementById("gbar");
+  if(gb) {
+    gb.className="gps-pill "+(ok?"gp-ok":"gp-warn");
+    document.getElementById("gtxt").textContent=t;
+  }
+}
+
+function bld(){
+  const roads=[...new Set(LOCS.map(l=>l.road))];
+  let h="";
+  roads.forEach(r=>{
+    h+=`<div class="road-lbl">${r}</div>`;
+    LOCS.filter(l=>l.road===r).forEach(l=>{
+      const ii=l.type==="in",sel=pk?.id===l.id;
+      const d=ulat?gd(ulat,ulng,l.lat,l.lng):null,gok=d!==null&&d<=l.r;
+      const gt=d!==null?(gok
+        ?`<div class="lgps lgok"><i class="ti ti-check" style="font-size:11px;" aria-hidden="true"></i> داخل النطاق</div>`
+        :`<div class="lgps lgwarn"><i class="ti ti-alert-triangle" style="font-size:11px;" aria-hidden="true"></i> ${Math.round(d)} متر</div>`):"";
+      
+      h+=`<div class="loc-row ${sel?(ii?"sel-in":"sel-out"):""}" onclick="goAutoStart(${l.id})">
+        <div class="lbul ${ii?"bin":"bout"}"></div>
+        <div class="li"><div class="lname">${l.name}</div><div class="lroad">${l.road}</div>${gt}</div>
+        <span class="lbdg ${ii?"lbin":"lbout"}">${ii?"↓ مدخل":"↑ مخرج"}</span>
+      </div>`;
+    });
+  });
+  document.getElementById("llist").innerHTML=h;
+}
+
+function goAutoStart(id) {
+  const targetLoc = LOCS.find(l => l.id === id);
+  if (!targetLoc) return;
+  
+  pk = targetLoc;
+  cur = targetLoc;
+  
+  sid = "S-" + String(Date.now()).slice(-5);
+  sc = 0; pc = 0; svc = 0; el = 0; pnum = 1; 
+  ss = new Date(); lastTap = null; periodStart = new Date();
+  
+  const ii = cur.type === "in";
+  document.getElementById("s2n").textContent = (ii ? "↓ " : "↑ ") + cur.name + " — " + cur.road;
+  document.getElementById("s2m").textContent = sid + " | بدأت " + ft(ss);
+  document.getElementById("cdir").textContent = ii ? "↓ عد الداخل" : "↑ عد الخارج";
+  document.getElementById("cdir").className = "cdir " + (ii ? "cdir-in" : "cdir-out");
+  document.getElementById("czone").className = "counter-zone " + (ii ? "zone-in" : "zone-out");
+  document.getElementById("cnum").textContent = "0";
+  document.getElementById("cday").textContent = "0";
+  document.getElementById("pfill").className = "pfill " + (ii ? "pf-in" : "pf-out");
+  document.getElementById("pfill").style.width = "0%";
+  document.getElementById("rpl").style.background = ii ? "radial-gradient(circle,#1D9E75,transparent)" : "radial-gradient(circle,#E24B4A,transparent)";
+  const iPeriod = document.getElementById("i-period");
+  if (iPeriod) iPeriod.textContent = "الفترة 1";
+  
+  setSY(false);
+  showScr("s2");
+  
+  startPT();
+  startAT();
+  startDur();
+  startRate();
+  setupHold();
+  
+  fetchLocTotals();
+  if (window._locTimer) clearInterval(window._locTimer);
+  window._locTimer = setInterval(fetchLocTotals, 60000);
+  
+  toast("✓ تم فتح الموقع بنظام الحساب الموحد", "tok");
+}
+
+function doTap(){
+  sc++;dc++;pc++;lastTap=new Date();
+  if(cfg.v&&navigator.vibrate)navigator.vibrate(55);
+  if(cfg.s)bip();
+  const n=document.getElementById("cnum");
+  n.textContent=sc;n.classList.add("pop");setTimeout(()=>n.classList.remove("pop"),90);
+  document.getElementById("cday").textContent=sc;
+  const ssS = document.getElementById("ss-s");
+  if (ssS) ssS.textContent=sc;
+  const ssP = document.getElementById("ss-p");
+  if (ssP) ssP.textContent=pc;
+  const r=document.getElementById("rpl");
+  r.classList.remove("show");void r.offsetWidth;r.classList.add("show");
+  setTimeout(()=>r.classList.remove("show"),560);
+  
+  updateUIStats();
+  setSY(false);
+}
+
+function setupHold(){
+  const cz=document.getElementById("czone");
+  cz.addEventListener("touchstart",onTouchStart,{passive:true});
+  cz.addEventListener("touchend",onTouchEnd,{passive:true});
+  cz.addEventListener("mousedown",onTouchStart);
+  cz.addEventListener("mouseup",onTouchEnd);
+}
+function onTouchStart(){holdTimer=setTimeout(doUndo,1500);}
+function onTouchEnd(){if(holdTimer){clearTimeout(holdTimer);holdTimer=null;}}
+
+function doUndo(){
+  if(sc===0)return;
+  sc--;if(dc>0)dc--;if(pc>0)pc--;
+  const n=document.getElementById("cnum");
+  n.textContent=sc;n.classList.add("undo-pop");
+  setTimeout(()=>n.classList.remove("undo-pop"),200);
+  document.getElementById("cday").textContent=sc;
+  const ssS = document.getElementById("ss-s");
+  if (ssS) ssS.textContent=sc;
+  const ssP = document.getElementById("ss-p");
+  if (ssP) ssP.textContent=pc;
+  if(cfg.v&&navigator.vibrate)navigator.vibrate([80,40,80]);
+  
+  updateUIStats();
+  toast("تم التراجع","twarn");
+  setSY(false);
+}
+
+function startPT(){
+  if(pt)clearInterval(pt);el=0;
+  pt=setInterval(()=>{
+    el+=.5;
+    document.getElementById("pfill").style.width=Math.min(el/PERIOD_SEC*100,100)+"%";
+    if(el>=PERIOD_SEC){
+      saveP();el=0;pnum++;
+      const iPeriod = document.getElementById("i-period");
+      if (iPeriod) iPeriod.textContent="الفترة "+pnum;
+    }
+  },500);
+}
+
+async function saveP(silent){
+  if(pc===0)return;
+  const saved=pc,pEnd=new Date();
+  svc+=saved; pc=0;
+  const ssP = document.getElementById("ss-p");
+  if (ssP) ssP.textContent="0";
+  const ssSv = document.getElementById("ss-sv");
+  if (ssSv) ssSv.textContent=svc;
+  setSY(true,silent?null:"✓ حُفظت "+saved+" حافلة");
+  if(cfg.sv&&navigator.vibrate)navigator.vibrate([30,20,60]);
+  
+  callScript("submitCounter",{
+    session_id:sid,
+    location_id:cur?.id||"",
+    direction:cur?.type||"",
+    period_start:periodStart?periodStart.toISOString():"",
+    period_end:pEnd.toISOString(),
+    period_num:pnum,
+    count:saved,
+    user_id:CUR?.user_id||"",
+    lat:ulat||"",
+    lng:ulng||"",
+    season_id:SEASON,
+  }).then(()=>{
+    fetchLocTotals();
+  });
+  periodStart=new Date();
+}
+
+function startAT(){if(at)clearInterval(at);if(!cfg.a)return;at=setInterval(()=>{if(pc>0)saveP();},PERIOD_SEC*1000);}
+
+function startDur(){
+  if(durT)clearInterval(durT);
+  durT=setInterval(()=>{
+    const s=Math.round((new Date()-ss)/1000);
+    const sdurSpan = document.getElementById("sdur");
+    if (sdurSpan) sdurSpan.textContent="المدة: "+fDur(s);
+  },1000);
+}
+
+function startRate(){
+  if(rateT)clearInterval(rateT);
+  rateT=setInterval(()=>{
+    if(!ss||sc===0){
+      const ssR = document.getElementById("ss-r");
+      if (ssR) ssR.textContent="—";
+      const iRate = document.getElementById("i-rate");
+      if (iRate) iRate.textContent="— حافلة/دقيقة";
+      return;
+    }
+    const mins=Math.max((new Date()-ss)/60000,.1);
+    const rate=(sc/mins).toFixed(1);
+    const ssR = document.getElementById("ss-r");
+    if (ssR) ssR.textContent=rate;
+    const iRate = document.getElementById("i-rate");
+    if (iRate) iRate.textContent=rate+" حافلة/دقيقة";
+    updateUIStats();
+  },5000);
+}
+
+function setSY(ok,msg){
+  const sdot = document.getElementById("sdot");
+  if (sdot) sdot.className="sdot "+(ok?"ok":"pend");
+  const stxt = document.getElementById("stxt");
+  if (stxt) stxt.textContent=ok?(msg?"مُزامَن — "+ft(new Date()):"مُزامَن"):"بانتظار المزامنة";
+  if(ok&&msg)toast(msg,"tok");
+}
+
+function syncNow(cb){
+  document.getElementById("m-sync").className="sync-modal on";
+  document.getElementById("sync-msg").textContent="جاري المزامنة...";
+  document.getElementById("sync-sub").textContent="يتم حفظ "+pc+" حافلة";
+  setTimeout(()=>{
+    saveP(true);
+    document.getElementById("sync-msg").textContent="تم الحفظ ✓";
+    document.getElementById("sync-sub").textContent="البيانات محفوظة بنجاح";
+    if(cfg.v&&navigator.vibrate)navigator.vibrate([30,20,60]);
+    setTimeout(()=>{document.getElementById("m-sync").className="sync-modal";if(cb)cb();},700);
+  },900);
+}
+
+function askReset(){
+  clov("ov-set");
+  document.getElementById("m-sub").textContent=pc>0
+    ?`يوجد ${pc} حافلة غير مُزامَنة.\nسيتم المزامنة فوراً ثم التصفير.`
+    :`تصفير عداد "${cur?.name}"؟\nالجلسة الحالية: ${sc} حافلة`;
+  document.getElementById("m-res").className="modal-bg on";
+}
+function doReset(){
+  cmod("m-res");
+  const act=()=>{
+    archSess();
+    sc=0;pc=0;el=0;pnum=1;sid="S-"+String(Date.now()).slice(-5);ss=new Date();lastTap=null;
+    document.getElementById("cnum").textContent="0";
+    const ssS = document.getElementById("ss-s");
+    if (ssS) ssS.textContent="0";
+    const ssP = document.getElementById("ss-p");
+    if (ssP) ssP.textContent="0";
+    document.getElementById("pfill").style.width="0%";
+    document.getElementById("s2m").textContent=sid+" | بدأت "+ft(ss);
+    const iPeriod = document.getElementById("i-period");
+    if (iPeriod) iPeriod.textContent="الفترة 1";
+    updateUIStats();
+    setSY(true);toast("تم التصفير","tinf");
+  };
+  if(pc>0)syncNow(act);else act();
+}
+
+function askEnd(){
+  clov("ov-set");
+  const dur=Math.round((new Date()-ss)/1000);
+  const ii=cur.type==="in";
+  const mins=Math.max(dur/60,.1);
+  const rate=(sc/mins).toFixed(1);
+  const endBtn = document.getElementById("end-btn");
+  if (endBtn) endBtn.className="end-btn "+(ii?"":"end-btn-out");
+  document.getElementById("end-sum").innerHTML=`
+    <div class="er"><span class="el">الموقع</span><span class="ev">${ii?"↓":"↑"} ${cur.name}</span></div>
+    <div class="er"><span class="el">البداية</span><span class="ev">${ft(ss)}</span></div>
+    <div class="er"><span class="el">الانتهاء</span><span class="ev">${ft(new Date())}</span></div>
+    <div class="er"><span class="el">المدة</span><span class="ev">${fDur(dur)}</span></div>
+    <div class="er"><span class="el">إجمالي العدد</span><span class="ev">${sc} حافلة</span></div>
+    <div class="er"><span class="el">معدل العدد</span><span class="ev">${rate} حافلة/دقيقة</span></div>
+    <div class="er"><span class="el">مُزامَن</span><span class="ev">${svc} حافلة</span></div>
+    <div class="er"><span class="el">غير مُزامَن</span><span class="ev">${pc} حافلة</span></div>
+  `;
+  document.getElementById("ov-end").className="ov on";
+}
+function doEnd(){
+  clov("ov-end");
+  const fin=()=>{
+    archSess();
+    if(pt)clearInterval(pt);if(at)clearInterval(at);if(durT)clearInterval(durT);if(rateT)clearInterval(rateT);
+    sc=0;pc=0;svc=0;pk=cur;cur=null;bld();showScr("s1");
+    toast("تم حفظ الجلسة","tok");
+  };
+  if(pc>0)syncNow(fin);else fin();
+}
+
+function changeLoc(){
+  clov("ov-set");
+  const fin=()=>{
+    archSess();
+    if(pt)clearInterval(pt);if(at)clearInterval(at);if(durT)clearInterval(durT);if(rateT)clearInterval(rateT);
+    sc=0;pc=0;svc=0;pk=cur;cur=null;bld();showScr("s1");
+  };
+  if(pc>0)syncNow(fin);else fin();
+}
+
+function archSess(){
+  if(sc>0)hist.unshift({loc:cur,cnt:sc,sv:svc,dur:Math.round((new Date()-ss)/1000),st:ft(ss),en:ft(new Date())});
+}
+
+function openHist(){
+  const all=[...hist];
+  if(cur&&sc>0)all.unshift({loc:cur,cnt:sc,sv:svc,dur:Math.round((new Date()-ss)/1000),st:ft(ss),en:"جارية"});
+  document.getElementById("hbody").innerHTML=all.length
+    ?all.map(h=>`<div class="hi">
+        <div><div class="hn">${h.loc.type==="in"?"↓":"↑"} ${h.loc.name}</div><div class="hs">${h.st} → ${h.en} | ${fDur(h.dur)}</div></div>
+        <div style="text-align:left;"><div class="hc">${h.cnt}</div><div class="hsy">مُزامَن: ${h.sv}</div></div>
+      </div>`).join("")
+    :'<div style="font-size:12px;color:var(--text2);padding:6px 0;">لا يوجد سجل بعد</div>';
+  document.getElementById("ov-hist").className="ov on";
+}
+
+function openSet(){document.getElementById("ov-set").className="ov on";}
+function tg(k){cfg[k]=!cfg[k];const togg = document.getElementById("t"+k); if(togg) togg.className="tog "+(cfg[k]?"on":"off");if(k==="a")startAT();}
+function showScr(id){document.querySelectorAll(".scr").forEach(s=>s.classList.remove("on"));document.getElementById(id).classList.add("on");}
+function clov(id){document.getElementById(id).className="ov";}
+function cmod(id){document.getElementById(id).className="modal-bg";}
+function toast(m,c){const t=document.getElementById("toast");t.textContent=m;t.className="toast on "+(c||"tok");setTimeout(()=>t.className="toast",2200);}
+function bip(){try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=1000;g.gain.setValueAtTime(.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.07);o.start();o.stop(c.currentTime+.07);}catch(e){}}
+
+(function initRoad(){
+  if(!CUR){ window.top.location.href=SCRIPT_URL; return; }
+  const ut=document.getElementById("utag"); if(ut) ut.textContent=CUR.name;
+  
+  callScript("getRoadLocations").then(r=>{
+    if(r.success&&r.locations&&r.locations.length){
+      LOCS=r.locations.map(l=>({
+        id:l.id,name:l.name,road:l.road,type:l.type,
+        lat:parseFloat(l.geofence_lat)||0,
+        lng:parseFloat(l.geofence_lng)||0,
+        r:parseInt(l.geofence_radius_m)||300,
+      }));
+    }
+    initGPS();
+  });
+})();
+</script>
+</body>
+</html>
